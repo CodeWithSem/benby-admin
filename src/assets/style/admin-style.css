@@ -1,0 +1,15 @@
+.admin-card {
+  position: relative;
+  height: 18vh;
+  background: #fff;
+  border-radius: 0.7vh;
+  border: 0.1vh solid var(--border-color-light);
+  transition: box-shadow 0.14s ease;
+  cursor: pointer;
+  user-select: none;
+  color: var(--text-color);
+}
+
+.admin-card:hover {
+  box-shadow: 0 0 0 0.2vh rgba(0, 0, 0, 0.14);
+}

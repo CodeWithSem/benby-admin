@@ -1,0 +1,130 @@
+/* Sidebar container */
+.sidebar-container {
+  position: relative;
+  background: var(--white);
+  border-radius: 1vh;
+  border: 0.1vh solid var(--border-color-light);
+  height: 100%;
+  width: 100%;
+}
+
+/* Header section */
+.sidebar-header {
+  height: 8vh;
+  width: 100%;
+  margin-bottom: 2vh;
+  border-bottom: 0.15vh solid var(--border-color-light);
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-logo {
+  height: 8vh;
+  width: 8vh;
+  padding: 1.1vh;
+}
+
+.sidebar-header-content {
+  flex: 1;
+  padding-left: 1vh;
+}
+
+.sidebar-header-title {
+  font-size: 1.8vh;
+  letter-spacing: 0.07vh;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.sidebar-header-subtitle {
+  font-size: 1.2vh;
+  letter-spacing: 0.1vh;
+  color: var(--text-color-light);
+}
+
+/* Sidebar items */
+.sidebar-items {
+  display: flex;
+  flex-direction: column;
+  padding: 0 2vh 2vh 2vh;
+  gap: 0.5vh;
+}
+
+.sidebar-item {
+  padding-left: 0.2vh;
+  height: 5.4vh;
+  display: flex;
+  align-items: center;
+  /* gap: 0.2vh; */
+  color: var(--text-color-light);
+  border-radius: 0.7vh;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  color: var(--primary-color);
+}
+
+.sidebar-item.active {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.sidebar-item-text {
+  flex: 1;
+  font-size: 1.6vh;
+  font-weight: 500;
+}
+
+/* Footer section */
+.sidebar-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  border-top: 0.15vh solid var(--border-color-light);
+  gap: 1vh;
+}
+
+.sidebar-footer-item {
+  height: 7vh;
+  display: flex;
+  align-items: center;
+  gap: 1vh;
+}
+
+.sidebar-footer-user-info {
+  flex: 1;
+  letter-spacing: 0.04vh;
+}
+
+.sidebar-footer-user-name {
+  font-size: 1.3vh;
+  color: #000;
+}
+
+.sidebar-footer-user-role {
+  font-size: 1.1vh;
+  color: var(--text-color-light);
+}
+
+.sidebar-footer-icon {
+  height: 100%;
+  width: 7vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s;
+}
+
+.sidebar-footer-icon.logout {
+  cursor: pointer;
+}
+
+.sidebar-footer-icon.logout:hover {
+  color: red;
+}
+
+/* Additional icon size adjustments */
