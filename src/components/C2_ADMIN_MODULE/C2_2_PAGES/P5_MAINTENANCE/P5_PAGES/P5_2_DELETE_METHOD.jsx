@@ -47,7 +47,7 @@ const P5_2_DELETE_METHOD = ({ set_page_display }) => {
             style={{ padding: "0 2vh" }}
             onClick={() => set_page_display("")}
           >
-            GO BACK
+            GO BACKSSS
           </button>
         </div>
       </div>
