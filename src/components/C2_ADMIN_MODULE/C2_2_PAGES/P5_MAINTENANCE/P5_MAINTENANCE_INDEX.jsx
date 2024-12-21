@@ -78,7 +78,7 @@ const P5_MAINTENANCE_INDEX = () => {
                     color: "var(--text-color)",
                   }}
                 >
-                  DELETE Method
+                  DELETE MethodS
                 </div>
               </div>
               {/* - DELETE Method */}
