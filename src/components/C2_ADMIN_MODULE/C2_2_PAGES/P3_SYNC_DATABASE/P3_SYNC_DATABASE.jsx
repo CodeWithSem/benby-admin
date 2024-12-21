@@ -2,6 +2,7 @@ import React from "react";
 import { MdOutlineCloudSync } from "react-icons/md";
 
 const P3_SYNC_DATABASE = () => {
+  // RETURN ORIGIN
   return (
     <React.Fragment>
       <div className="h-100 w-100">

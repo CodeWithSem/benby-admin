@@ -30,8 +30,18 @@
   align-items: center;
 }
 
+.content-right {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
 .border {
   border: 0.2vh solid #000;
+}
+
+.border-light {
+  border: 0.1vh solid var(--border-color-light);
 }
 
 .h-100 {
@@ -44,4 +54,86 @@
 
 .shadow-1 {
   box-shadow: 0 0 0.7vh 0 rgba(0, 0, 0, 0.1);
+}
+
+.card {
+  position: relative;
+  background: #fff;
+  border-radius: 0.7vh;
+  border: 0.1vh solid var(--border-color-light);
+  transition: box-shadow 0.14s ease;
+  user-select: none;
+  color: var(--text-color);
+}
+
+.btn-general {
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn-general.btn-sm {
+  font-size: 1.4vh;
+  border-width: 0.1vh;
+  border-radius: 0.4vh;
+}
+
+.btn-general.btn-green {
+  color: #fff;
+  border: 0.1vh solid #06722a;
+  background: #11943d;
+  transition: all 0.2s ease;
+}
+
+.btn-general.btn-green:hover {
+  background: #1aac4b;
+}
+
+.btn-general.btn-green:disabled {
+  border: 0.1vh solid #06722a31;
+  background: #11943d63;
+  cursor: not-allowed;
+}
+
+/* .btn-general.btn-green {
+  color: #fff;
+  border: 0.1vh solid #0a8132;
+  background: #16af49;
+  transition: all 0.2s ease;
+}
+
+.btn-general.btn-green:hover {
+  background: #2bc75f;
+} */
+
+.btn-general.btn-red {
+  color: #fff;
+  border: 0.1vh solid #990c0c;
+  background: #dd3131;
+  transition: all 0.2s ease;
+}
+
+.btn-general.btn-red:hover {
+  background: #e44545;
+}
+
+.btn-general.btn-blue {
+  color: #fff;
+  border: 0.1vh solid #09437a;
+  background: #2a7fcf;
+  transition: all 0.2s ease;
+}
+
+.btn-general.btn-blue:hover {
+  background: #4494df;
+}
+
+.btn-general.btn-gray {
+  color: #fff;
+  border: 0.1vh solid #5a5a5a;
+  background: #797979;
+  transition: all 0.2s ease;
+}
+
+.btn-general.btn-gray:hover {
+  background: #858585;
 }

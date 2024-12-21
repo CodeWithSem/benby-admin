@@ -6,6 +6,7 @@
   border: 0.1vh solid var(--border-color-light);
   height: 100%;
   width: 100%;
+  user-select: none;
 }
 
 /* Header section */

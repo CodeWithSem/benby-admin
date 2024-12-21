@@ -13,3 +13,23 @@
 .admin-card:hover {
   box-shadow: 0 0 0 0.2vh rgba(0, 0, 0, 0.14);
 }
+
+.converted-table > thead > tr > th,
+.converted-table > tbody > tr > td > input {
+  color: var(--text-color);
+}
+
+.converted-table > thead > tr > th {
+  font-size: 1.6vh;
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.converted-table td:first-child {
+  border-left: 0;
+}
+
+/* Remove right border for the last column */
+.converted-table td:last-child {
+  border-right: 0;
+}
