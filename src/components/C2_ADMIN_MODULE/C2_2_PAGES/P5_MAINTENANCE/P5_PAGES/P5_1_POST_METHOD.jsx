@@ -5,6 +5,7 @@ import { FaAnglesRight, FaChevronDown } from "react-icons/fa6";
 import { MdClose } from "react-icons/md";
 
 const P5_1_POST_METHOD = ({ set_page_display }) => {
+  const [confirm_post_modal, set_confirm_post_modal] = useState(false);
   // + JSON CONVERSION
   const [json_text_data, set_json_text_data] = useState("");
   const [rows, set_rows] = useState([
@@ -75,7 +76,8 @@ const P5_1_POST_METHOD = ({ set_page_display }) => {
     const path = `/${post_info.database}/${post_info.path}`;
     try {
       await set(ref(db, path), get_json_object());
-      alert("Data successfully stored!");
+      alert("Data stored!");
+      set_confirm_post_modal(false);
     } catch (error) {
       alert("Error storing data: " + error.message);
     }
@@ -109,7 +111,7 @@ const P5_1_POST_METHOD = ({ set_page_display }) => {
             style={{ padding: "0 2vh" }}
             onClick={() => set_page_display("")}
           >
-            GO BACK
+            Go Back
           </button>
         </div>
       </div>
@@ -437,7 +439,7 @@ const P5_1_POST_METHOD = ({ set_page_display }) => {
             <button
               className="h-100 btn-general btn-green btn-sm"
               style={{ padding: "0 1vh", letterSpacing: "0.1vh" }}
-              onClick={handle_add}
+              onClick={() => set_confirm_post_modal(true)}
               disabled={
                 rows.length > 0 &&
                 rows.every((row) => row.column_1 && row.column_2)
@@ -450,6 +452,168 @@ const P5_1_POST_METHOD = ({ set_page_display }) => {
           </div>
         </div>
       </div>
+      {/* + MODAL */}
+      {confirm_post_modal ? (
+        <React.Fragment>
+          <div class={`modal-overlay`}></div>
+          <div
+            class={`modal`}
+            style={{
+              width: "65vh",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {/* + MODAL HEADER */}
+            <div
+              style={{
+                width: "100%",
+                height: "7vh",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderBottom: "0.1vh solid var(--border-color-light)",
+                paddingTop: "0.3vh",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "1.8vh",
+                  color: "var(--text-color)",
+                  marginLeft: "2vh",
+                  letterSpacing: "0.1vh",
+                }}
+              >
+                Post Method
+              </div>
+              <div
+                style={{
+                  height: "4.2vh",
+                  width: "4.2vh",
+                  marginRight: "2vh",
+                }}
+                className="btn-close-modal"
+                onClick={() => set_confirm_post_modal(false)}
+              >
+                <MdClose
+                  style={{
+                    color: "var(--text-color)",
+                    fontSize: "2.4vh",
+                  }}
+                />
+              </div>
+            </div>
+            {/* - MODAL HEADER */}
+            {/* + MODAL CONTENT */}
+            <div
+              style={{
+                width: "100%",
+                height: "100%",
+                padding: "3vh",
+                fontSize: "1.6vh",
+                color: "var(--text-color)",
+              }}
+            >
+              <div
+                className="w-100 content-center"
+                style={{ height: "4vh", marginBottom: "2vh" }}
+              >
+                Are you sure you want to POST in this path?
+              </div>
+              <div className="w-100" style={{ height: "8vh" }}>
+                <div
+                  className="content-center w-100"
+                  style={{ marginBottom: "1vh" }}
+                >
+                  <div className="content-left" style={{ width: "10vh" }}>
+                    DATABASE
+                  </div>
+                  <div className="content-center" style={{ width: "4vh" }}>
+                    :
+                  </div>
+                  <div style={{ flex: "1" }}>
+                    <input
+                      className="w-100 border-light"
+                      style={{
+                        fontSize: "1.6vh",
+                        padding: "0.4vh",
+                        color: "var(--text-color)",
+                      }}
+                      value={post_info.database}
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div className="content-center w-100">
+                  <div className="content-left" style={{ width: "10vh" }}>
+                    PATH
+                  </div>
+                  <div className="content-center" style={{ width: "4vh" }}>
+                    :
+                  </div>
+                  <div style={{ flex: "1" }}>
+                    <input
+                      className="w-100 border-light"
+                      style={{
+                        fontSize: "1.6vh",
+                        padding: "0.4vh",
+                        color: "var(--text-color)",
+                      }}
+                      value={post_info.path}
+                      disabled
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* - MODAL CONTENT */}
+            {/* + MODAL BUTTONS */}
+            <div
+              style={{
+                width: "100%",
+                height: "7vh",
+                borderTop: "0.1vh solid var(--border-color-light)",
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                padding: "1vh",
+                gap: "1vh",
+              }}
+            >
+              <button
+                style={{
+                  height: "100%",
+                  padding: "0 2vh",
+                  borderRadius: "0.5vh",
+                  fontSize: "1.6vh",
+                  letterSpacing: "0.1vh",
+                }}
+                className="btn-general btn-green btn-sm"
+                onClick={handle_add}
+              >
+                Post Data
+              </button>
+              <button
+                style={{
+                  height: "100%",
+                  padding: "0 2vh",
+                  borderRadius: "0.5vh",
+                  fontSize: "1.6vh",
+                  letterSpacing: "0.1vh",
+                }}
+                className="btn-general btn-gray btn-sm"
+                onClick={() => set_confirm_post_modal(false)}
+              >
+                Close
+              </button>
+            </div>
+            {/* - MODAL BUTTONS */}
+          </div>
+        </React.Fragment>
+      ) : null}
+      {/* - MODAL */}
     </React.Fragment>
   );
 };

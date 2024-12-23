@@ -12,8 +12,10 @@
   /* ===== Colors ===== */
   --body-color: #f5f5f5;
   --primary-color: #0b8630;
+  --primary-color-hover: #13943a;
+  --primary-color-light: #0b86301e;
   --border-color-light: #dadada;
-  --text-color: #474747;
+  --text-color: #333333;
   --text-color-light: #727272;
   --white: #fff;
 }
@@ -66,6 +68,43 @@
   color: var(--text-color);
 }
 
+/* + MODAL STYLE */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 999;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 0.7vh;
+  z-index: 1000;
+  border: 0.25vh solid #00000015;
+}
+
+.btn-close-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 10vh;
+  transition: all 0.3s;
+  user-select: none;
+}
+/* - MODAL STYLE */
+
+.btn-close-modal:hover {
+  background: #f5f5f5;
+}
+
 .btn-general {
   cursor: pointer;
   user-select: none;
@@ -93,17 +132,6 @@
   background: #11943d63;
   cursor: not-allowed;
 }
-
-/* .btn-general.btn-green {
-  color: #fff;
-  border: 0.1vh solid #0a8132;
-  background: #16af49;
-  transition: all 0.2s ease;
-}
-
-.btn-general.btn-green:hover {
-  background: #2bc75f;
-} */
 
 .btn-general.btn-red {
   color: #fff;

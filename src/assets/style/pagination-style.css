@@ -1,0 +1,121 @@
+/* + PAGINATION FIXED SIZE =========================== */
+.pg-container-fix,
+.pg-button-fix,
+.pg-links-fix,
+.pg-link-fix {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.pg-container-fix {
+  border-radius: 0.4vh;
+  column-gap: 1vh;
+  background: transparent;
+  user-select: none;
+}
+.pg-button-fix {
+  border: 0.1vh solid var(--border-color-light);
+}
+.pg-button-fix i {
+  pointer-events: none;
+}
+.pg-button-fix:disabled {
+  color: #b3b3b3;
+  pointer-events: none;
+}
+.pg-button-fix,
+.pg-link-fix {
+  height: 3.7vh;
+  padding: 0 1.7vh;
+  font-size: 1.3vh;
+  color: #666666;
+  background-color: #fff;
+  border-radius: 0.4vh;
+  border: 0.1vh solid var(--border-color-light);
+  cursor: pointer;
+}
+.pg-links-fix {
+  column-gap: 1.5vh;
+}
+.pg-link-fix {
+  font-weight: 500;
+  text-decoration: none;
+}
+.pg-button-fix:hover,
+.pg-link-fix:hover {
+  color: #fff;
+  background: var(--primary-color);
+  border: 0.1vh solid var(--primary-color);
+}
+.pg-link-fix.active {
+  color: #fff;
+  background: var(--primary-color);
+  border: 0.1vh solid var(--primary-color);
+}
+
+.pg-display-container-fix,
+.pg-display-button,
+.pg-display-links,
+.pg-display-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pg-display-container-fix {
+  border-radius: 4px;
+  column-gap: 6px;
+  background: transparent;
+  /* box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1); */
+}
+.pg-display-button {
+  border: none;
+}
+.pg-display-button i {
+  pointer-events: none;
+}
+.pg-display-button:disabled {
+  color: #b3b3b3;
+  pointer-events: none;
+}
+.pg-display-button,
+.pg-display-link {
+  height: 52px;
+  width: 82px;
+  font-size: 13px;
+  color: #666666;
+  background-color: #f2f2f2;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.pg-display-links {
+  column-gap: 7px;
+}
+.pg-display-link {
+  font-weight: 500;
+  text-decoration: none;
+}
+.pg-display-button:hover,
+.pg-display-link:hover {
+  color: #fff;
+  background: var(--primary-color);
+}
+.pg-display-link.active {
+  color: #fff;
+  background: var(--primary-color);
+}
+
+.pg-floor-indication {
+  border: none;
+  height: 52px;
+  width: 82px;
+  font-size: 13px;
+  color: #fff;
+  background-color: var(--primary-color);
+  border-radius: 6px;
+  cursor: pointer;
+}
+/* - PAGINATION FIXED SIZE =========================== */

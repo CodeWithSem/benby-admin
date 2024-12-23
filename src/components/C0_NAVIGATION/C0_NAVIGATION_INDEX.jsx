@@ -4,6 +4,7 @@ import "../../assets/style/general-style.css";
 import "../../assets/style/sidebar-style.css";
 import "../../assets/style/font-style.css";
 import "../../assets/style/admin-style.css";
+import "../../assets/style/pagination-style.css";
 
 const C0_NAVIGATION_INDEX = () => {
   // + PAGE SWITCH BUTTON

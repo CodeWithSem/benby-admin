@@ -31,14 +31,14 @@
 }
 
 .sidebar-header-title {
-  font-size: 1.8vh;
-  letter-spacing: 0.07vh;
+  font-size: 1.6vh;
+  letter-spacing: 0.1vh;
   font-weight: bold;
   color: var(--primary-color);
 }
 
 .sidebar-header-subtitle {
-  font-size: 1.2vh;
+  font-size: 1.1vh;
   letter-spacing: 0.1vh;
   color: var(--text-color-light);
 }
@@ -56,7 +56,6 @@
   height: 5.4vh;
   display: flex;
   align-items: center;
-  /* gap: 0.2vh; */
   color: var(--text-color-light);
   border-radius: 0.7vh;
   transition: all 0.3s;
@@ -74,7 +73,7 @@
 
 .sidebar-item-text {
   flex: 1;
-  font-size: 1.6vh;
+  font-size: 1.4vh;
   font-weight: 500;
 }
 
