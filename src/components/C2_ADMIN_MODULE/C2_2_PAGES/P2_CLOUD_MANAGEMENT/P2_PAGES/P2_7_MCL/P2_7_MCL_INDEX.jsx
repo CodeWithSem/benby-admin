@@ -11,7 +11,7 @@ import {
   MdKeyboardArrowRight,
 } from "react-icons/md";
 
-const P2_1_MCP_INDEX = ({ set_page_display }) => {
+const P2_7_MCL_INDEX = ({ set_page_display }) => {
   const cont_1_ref = useRef(null);
   const cont_2_ref = useRef(null);
 
@@ -32,10 +32,10 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
   };
 
   // + PAGINATION PROCESS ========================================
-  const [mcp_raw_data, set_mcp_raw_data] = useState([]);
-  const [mcp_list, set_mcp_list] = useState([]);
+  const [mcl_raw_data, set_mcl_raw_data] = useState([]);
+  const [mcl_list, set_mcl_list] = useState([]);
   const [selected_list_id, set_selected_list_id] = useState("");
-  const [refresh_mcp_list, set_refresh_mcp_list] = useState(false);
+  const [refresh_mcl_list, set_refresh_mcl_list] = useState(false);
   const [total_count, set_total_count] = useState(0);
   const [is_loading, set_is_loading] = useState(false);
   const [search_query, set_search_query] = useState("");
@@ -47,28 +47,13 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
   const data_per_page = 50;
   const max_visible_page = 5;
 
-  const get_mcp_raw_data = async () => {
+  const get_mcl_raw_data = async () => {
     try {
       set_is_loading(true);
-      const response = await get(
-        ref(db, `/DB1_BENBY_MERCH_APP/TBL_MCP_1/DATA`)
-      );
+      const response = await get(ref(db, `/DB1_BENBY_MERCH_APP/TBL_MCL/DATA`));
       const data = response.val();
-      let mcp_data = [];
-      if (data) {
-        Object.keys(data).forEach((parentPath) => {
-          const childPaths = data[parentPath];
-          if (childPaths) {
-            Object.keys(childPaths).forEach((childPath) => {
-              const info = childPaths[childPath];
-              if (info) {
-                mcp_data.push(info);
-              }
-            });
-          }
-        });
-      }
-      set_mcp_raw_data(mcp_data);
+      const data_array_mcl = Object.values(data);
+      set_mcl_raw_data(data_array_mcl);
     } catch (error) {
       console.log(error);
     } finally {
@@ -77,15 +62,15 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
   };
 
   useEffect(() => {
-    get_mcp_raw_data();
+    get_mcl_raw_data();
   }, []);
 
   useEffect(() => {
-    filter_data(mcp_raw_data);
-  }, [mcp_raw_data, current_page, search_query, refresh_mcp_list, sort_config]);
+    filter_data(mcl_raw_data);
+  }, [mcl_raw_data, current_page, search_query, refresh_mcl_list, sort_config]);
 
-  const filter_data = (mcp_data) => {
-    const filtered_data = apply_search_filter(mcp_data, search_query);
+  const filter_data = (mcl_data) => {
+    const filtered_data = apply_search_filter(mcl_data, search_query);
     const filtered_total_count = filtered_data.length;
     set_total_count(filtered_total_count);
     if (sort_config.key) {
@@ -106,20 +91,18 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
       ...item,
       index: start_index + index + 1,
     }));
-    set_mcp_list(indexed_data);
+    set_mcl_list(indexed_data);
   };
 
   const apply_search_filter = (data, query) => {
     const fields_to_search = [
-      "b4_TDSCode",
-      "a2_TDSName",
-      "a3_SoldCode",
-      "a4_SoldName",
-      "a5_Chain",
-      "a8_Week",
-      "b1_Dateuploaded",
-      "b9_RangeFrom",
-      "c1_RangeTo",
+      "a1_Matcode",
+      "a2_GroupName",
+      "a3_Brand",
+      "a4_SubBrand",
+      "a5_SKUName",
+      "a6_Dateuploaded",
+      "b3_Category",
     ];
     return data.filter((item) => {
       const search_by_text = fields_to_search.some((field) => {
@@ -176,7 +159,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
       direction = "desc";
     }
     set_sort_config({ key, direction });
-    set_refresh_mcp_list((prev) => !prev);
+    set_refresh_mcl_list((prev) => !prev);
   };
   // - PAGINATION PROCESS ========================================
 
@@ -243,7 +226,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
           <div className="content-center" style={{ width: "4vh" }}>
             <FaAnglesRight style={{ fontSize: "1.2vh" }} />
           </div>
-          <div>MCP</div>
+          <div>MCL (Products)</div>
           <div
             className="h-100 content-center"
             style={{ position: "absolute", right: "0", gap: "1vh" }}
@@ -321,33 +304,19 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
                   userSelect: "none",
                 }}
               >
-                {render_thead("#", "", "10")}
-                {render_thead("TDS CODE", "b4_TDSCode", 20)}
-                {render_thead("TDS NAME", "a2_TDSName", 40)}
-                {render_thead("SOLD CODE", "a3_SoldCode", 20)}
-                {render_thead("SOLD NAME", "a4_SoldName", 50)}
-                {render_thead("CHAIN", "a5_Chain", 30)}
-                {render_thead("TDS CATEGORY", "a6_TDSCategory", 30)}
-                {render_thead("SUPERVISOR", "a7_Supervisor", 40)}
-                {render_thead("WEEK", "a8_Week", 20)}
-                {render_thead("PLAN VISIT", "a9_PlanVisit", 20)}
-                {render_thead("DATE UPLOADED", "b1_Dateuploaded", 20)}
-                {render_thead("UPLOADED BY", "b2_UploadedBy", 20)}
-                {render_thead("ACTUAL DATE VISIT", "b3_ActualDateVisited", 20)}
-                {render_thead("FREQUENCY", "b5_Frequency", 20)}
-                {render_thead("PERIOD", "b6_Period", 20)}
-                {render_thead("MANAGER", "b7_Manager", 40)}
-                {render_thead("RANGE FROM", "b9_RangeFrom", 20)}
-                {render_thead("RANGE TO", "c1_RangeTo", 20)}
-                {render_thead("SOLD TO STREET", "c2_SoldToStreet", 40)}
-                {render_thead("CITY", "c3_City", 25)}
-                {render_thead("AREA", "c4_Area", 30)}
-                {render_thead("REGION", "c5_Region", 20)}
-                {render_thead("STORE CLASS", "c6_StoreClass", 20)}
-                {render_thead("CHANNEL", "c7_Channel", 40)}
-                {render_thead("OSA STATUS", "z1_md_status", 20)}
-                {render_thead("MD STATUS", "z2_osa_status", 20)}
-                {render_thead("EP STATUS", "z3_ep_status", 20)}
+                {render_thead("#", "", 10)}
+                {render_thead("MAT CODE", "a1_Matcode", 20)}
+                {render_thead("GROUP NAME", "a2_GroupName", 20)}
+                {render_thead("BRAND", "a3_Brand", 30)}
+                {render_thead("SUB BRAND", "a4_SubBrand", 30)}
+                {render_thead("SKU NAME", "a5_SKUName", 50)}
+                {render_thead("DATE UPLOADED", "a6_Dateuploaded", 20)}
+                {render_thead("UPLOADED BY", "a7_UploadedBy", 20)}
+                {render_thead("STATUS", "a8_Status", 20)}
+                {render_thead("ARRANGE BY", "a9_ArrangeBy", 20)}
+                {render_thead("FOR AVAILABLE", "b1_ForAvailable", 20)}
+                {render_thead("FOR OUT OF STOCK", "b2_ForOutofStock", 20)}
+                {render_thead("CATEGORY", "b3_Category", 20)}
               </tr>
             </table>
           </div>
@@ -394,9 +363,9 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
                 ) : null}
                 {!is_loading ? (
                   <React.Fragment>
-                    {mcp_list.length !== 0 ? (
+                    {mcl_list.length !== 0 ? (
                       <React.Fragment>
-                        {mcp_list.map((data) => {
+                        {mcl_list.map((data) => {
                           return (
                             <tr
                               style={{
@@ -405,45 +374,33 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
                                 height: "4vh",
                               }}
                               className={`${
-                                selected_list_id === data.a1_ID
+                                selected_list_id === data.a1_Matcode
                                   ? "selected"
                                   : ""
                               }`}
-                              onClick={() => set_selected_list_id(data.a1_ID)}
+                              onClick={() =>
+                                set_selected_list_id(data.a1_Matcode)
+                              }
                             >
                               {render_row(data.index, 10)}
-                              {render_row(data.b4_TDSCode, 20)}
-                              {render_row(data.a2_TDSName, 40)}
-                              {render_row(data.a3_SoldCode, 20)}
-                              {render_row(data.a4_SoldName, 50)}
-                              {render_row(data.a5_Chain, 30)}
-                              {render_row(data.a6_TDSCategory, 30)}
-                              {render_row(data.a7_Supervisor, 40)}
-                              {render_row(data.a8_Week, 20)}
-                              {render_row(data.a9_PlanVisit, 20)}
-                              {render_row(data.b1_Dateuploaded, 20)}
-                              {render_row(data.b2_UploadedBy, 20)}
-                              {render_row(data.b3_ActualDateVisited, 20)}
-                              {render_row(data.b5_Frequency, 20)}
-                              {render_row(data.b6_Period, 20)}
-                              {render_row(data.b7_Manager, 40)}
-                              {render_row(data.b9_RangeFrom, 20)}
-                              {render_row(data.c1_RangeTo, 20)}
-                              {render_row(data.c2_SoldToStreet, 40)}
-                              {render_row(data.c3_City, 25)}
-                              {render_row(data.c4_Area, 30)}
-                              {render_row(data.c5_Region, 20)}
-                              {render_row(data.c6_StoreClass, 20)}
-                              {render_row(data.c7_Channel, 40)}
-                              {render_row(data.z1_md_status, 20)}
-                              {render_row(data.z2_osa_status, 20)}
-                              {render_row(data.z3_ep_status, 20)}
+                              {render_row(data.a1_Matcode, 20)}
+                              {render_row(data.a2_GroupName, 20)}
+                              {render_row(data.a3_Brand, 30)}
+                              {render_row(data.a4_SubBrand, 30)}
+                              {render_row(data.a5_SKUName, 50)}
+                              {render_row(data.a6_Dateuploaded, 20)}
+                              {render_row(data.a7_UploadedBy, 20)}
+                              {render_row(data.a8_Status, 20)}
+                              {render_row(data.a9_ArrangeBy, 20)}
+                              {render_row(data.b1_ForAvailable, 20)}
+                              {render_row(data.b2_ForOutofStock, 20)}
+                              {render_row(data.b3_Category, 20)}
                             </tr>
                           );
                         })}
                       </React.Fragment>
                     ) : null}
-                    {mcp_list.length === 0 ? (
+                    {mcl_list.length === 0 ? (
                       <React.Fragment>
                         <tr style={{ height: "70vh" }}>
                           <td style={{ width: "100vw" }}>
@@ -463,7 +420,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
         {/* - TABLE SECTION */}
         {/* + PAGINATION */}
         <div className="w-100" style={{ height: "7vh" }}>
-          {mcp_list.length !== 0 ? (
+          {mcl_list.length !== 0 ? (
             <React.Fragment>
               <div
                 className="pg-container-fix"
@@ -531,4 +488,4 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
   );
 };
 
-export default P2_1_MCP_INDEX;
+export default P2_7_MCL_INDEX;

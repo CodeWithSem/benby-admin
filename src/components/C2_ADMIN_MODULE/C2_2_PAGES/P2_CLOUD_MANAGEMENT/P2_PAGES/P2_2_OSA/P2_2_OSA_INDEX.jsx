@@ -10,8 +10,13 @@ import {
   MdKeyboardDoubleArrowRight,
   MdKeyboardArrowRight,
 } from "react-icons/md";
+import { format_date } from "../../../../../../assets/scripts/functions/format_function";
 
-const P2_1_MCP_INDEX = ({ set_page_display }) => {
+const P2_2_OSA_INDEX = ({ set_page_display }) => {
+  const date_now = new Date();
+  const [osa_date, set_osa_date] = useState(
+    date_now.toISOString().split("T")[0] // Format to YYYY-MM-DD
+  );
   const cont_1_ref = useRef(null);
   const cont_2_ref = useRef(null);
 
@@ -32,10 +37,10 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
   };
 
   // + PAGINATION PROCESS ========================================
-  const [mcp_raw_data, set_mcp_raw_data] = useState([]);
-  const [mcp_list, set_mcp_list] = useState([]);
+  const [osa_raw_data, set_osa_raw_data] = useState([]);
+  const [osa_list, set_osa_list] = useState([]);
   const [selected_list_id, set_selected_list_id] = useState("");
-  const [refresh_mcp_list, set_refresh_mcp_list] = useState(false);
+  const [refresh_osa_list, set_refresh_osa_list] = useState(false);
   const [total_count, set_total_count] = useState(0);
   const [is_loading, set_is_loading] = useState(false);
   const [search_query, set_search_query] = useState("");
@@ -47,28 +52,49 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
   const data_per_page = 50;
   const max_visible_page = 5;
 
-  const get_mcp_raw_data = async () => {
+  const get_osa_raw_data = async () => {
     try {
       set_is_loading(true);
+      const osa_date_value = format_date(osa_date, "-");
       const response = await get(
-        ref(db, `/DB1_BENBY_MERCH_APP/TBL_MCP_1/DATA`)
+        ref(db, `/DB2_BENBY_MERCH_APP/TBL_OSA/DATA/${osa_date_value}`)
       );
       const data = response.val();
-      let mcp_data = [];
+      let osa_data = [];
       if (data) {
-        Object.keys(data).forEach((parentPath) => {
-          const childPaths = data[parentPath];
-          if (childPaths) {
-            Object.keys(childPaths).forEach((childPath) => {
-              const info = childPaths[childPath];
-              if (info) {
-                mcp_data.push(info);
+        Object.keys(data).forEach((store_code) => {
+          const store_data = data[store_code];
+          if (store_data) {
+            Object.keys(store_data).forEach((tds_code) => {
+              const tds_data = store_data[tds_code];
+              if (tds_data) {
+                Object.keys(tds_data).forEach((matcode) => {
+                  const matcode_data = tds_data[matcode];
+                  if (matcode_data) {
+                    const data = {
+                      a0_ID: `${osa_date_value}_${store_code}_${tds_code}_${matcode}`,
+                      a1_Matcode: matcode_data.a1_Matcode,
+                      a2_Storecode: store_code,
+                      a3_ActionID: matcode_data.a3_ActionID,
+                      a4_SubActionID: matcode_data.a4_SubActionID,
+                      a5_Dateupdated: matcode_data.a5_Dateupdated,
+                      a6_UpdatedBy: matcode_data.a6_UpdatedBy,
+                      a7_Pcs: matcode_data.a7_Pcs,
+                      a8_Cases: matcode_data.a8_Cases,
+                      a9_InnerBox: matcode_data.a9_InnerBox,
+                      b1_ExpiryDate: matcode_data.b1_ExpiryDate,
+                      b2_Remarks: matcode_data.b2_Remarks,
+                      b3_ExpiryDates: matcode_data.b3_ExpiryDates,
+                    };
+                    osa_data.push(data);
+                  }
+                });
               }
             });
           }
         });
       }
-      set_mcp_raw_data(mcp_data);
+      set_osa_raw_data(osa_data);
     } catch (error) {
       console.log(error);
     } finally {
@@ -77,15 +103,11 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
   };
 
   useEffect(() => {
-    get_mcp_raw_data();
-  }, []);
+    get_osa_raw_data();
+  }, [osa_date]);
 
-  useEffect(() => {
-    filter_data(mcp_raw_data);
-  }, [mcp_raw_data, current_page, search_query, refresh_mcp_list, sort_config]);
-
-  const filter_data = (mcp_data) => {
-    const filtered_data = apply_search_filter(mcp_data, search_query);
+  const filter_data = (osa_data) => {
+    const filtered_data = apply_search_filter(osa_data, search_query);
     const filtered_total_count = filtered_data.length;
     set_total_count(filtered_total_count);
     if (sort_config.key) {
@@ -106,21 +128,15 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
       ...item,
       index: start_index + index + 1,
     }));
-    set_mcp_list(indexed_data);
+    set_osa_list(indexed_data);
   };
 
+  useEffect(() => {
+    filter_data(osa_raw_data);
+  }, [osa_raw_data, current_page, search_query, refresh_osa_list, sort_config]);
+
   const apply_search_filter = (data, query) => {
-    const fields_to_search = [
-      "b4_TDSCode",
-      "a2_TDSName",
-      "a3_SoldCode",
-      "a4_SoldName",
-      "a5_Chain",
-      "a8_Week",
-      "b1_Dateuploaded",
-      "b9_RangeFrom",
-      "c1_RangeTo",
-    ];
+    const fields_to_search = ["a2_Storecode"];
     return data.filter((item) => {
       const search_by_text = fields_to_search.some((field) => {
         const value = item[field];
@@ -176,7 +192,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
       direction = "desc";
     }
     set_sort_config({ key, direction });
-    set_refresh_mcp_list((prev) => !prev);
+    set_refresh_osa_list((prev) => !prev);
   };
   // - PAGINATION PROCESS ========================================
 
@@ -243,7 +259,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
           <div className="content-center" style={{ width: "4vh" }}>
             <FaAnglesRight style={{ fontSize: "1.2vh" }} />
           </div>
-          <div>MCP</div>
+          <div>OSA</div>
           <div
             className="h-100 content-center"
             style={{ position: "absolute", right: "0", gap: "1vh" }}
@@ -271,6 +287,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
             position: "relative",
             height: "5vh",
             marginBottom: "1vh",
+            gap: "1vh",
           }}
           className="w-100 content-center"
         >
@@ -282,12 +299,29 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
               <input
                 type="text"
                 placeholder="Search..."
+                style={{ display: "block" }}
                 value={search_query}
                 onChange={(e) => {
                   handle_search_change(e);
                 }}
               />
             </div>
+          </div>
+          <div className="h-100">
+            <input
+              type="date"
+              className="h-100 w-100 border-light"
+              style={{
+                display: "block",
+                padding: "0 1vh",
+                borderRadius: "0.4vh",
+                fontSize: "1.6vh",
+                color: "var(--text-color)",
+                letterSpacing: "0.2vh",
+              }}
+              value={osa_date}
+              onChange={(e) => set_osa_date(e.target.value)} // Update state on change
+            />
           </div>
         </div>
         {/* - SEARCH BAR */}
@@ -321,33 +355,19 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
                   userSelect: "none",
                 }}
               >
-                {render_thead("#", "", "10")}
-                {render_thead("TDS CODE", "b4_TDSCode", 20)}
-                {render_thead("TDS NAME", "a2_TDSName", 40)}
-                {render_thead("SOLD CODE", "a3_SoldCode", 20)}
-                {render_thead("SOLD NAME", "a4_SoldName", 50)}
-                {render_thead("CHAIN", "a5_Chain", 30)}
-                {render_thead("TDS CATEGORY", "a6_TDSCategory", 30)}
-                {render_thead("SUPERVISOR", "a7_Supervisor", 40)}
-                {render_thead("WEEK", "a8_Week", 20)}
-                {render_thead("PLAN VISIT", "a9_PlanVisit", 20)}
-                {render_thead("DATE UPLOADED", "b1_Dateuploaded", 20)}
-                {render_thead("UPLOADED BY", "b2_UploadedBy", 20)}
-                {render_thead("ACTUAL DATE VISIT", "b3_ActualDateVisited", 20)}
-                {render_thead("FREQUENCY", "b5_Frequency", 20)}
-                {render_thead("PERIOD", "b6_Period", 20)}
-                {render_thead("MANAGER", "b7_Manager", 40)}
-                {render_thead("RANGE FROM", "b9_RangeFrom", 20)}
-                {render_thead("RANGE TO", "c1_RangeTo", 20)}
-                {render_thead("SOLD TO STREET", "c2_SoldToStreet", 40)}
-                {render_thead("CITY", "c3_City", 25)}
-                {render_thead("AREA", "c4_Area", 30)}
-                {render_thead("REGION", "c5_Region", 20)}
-                {render_thead("STORE CLASS", "c6_StoreClass", 20)}
-                {render_thead("CHANNEL", "c7_Channel", 40)}
-                {render_thead("OSA STATUS", "z1_md_status", 20)}
-                {render_thead("MD STATUS", "z2_osa_status", 20)}
-                {render_thead("EP STATUS", "z3_ep_status", 20)}
+                {render_thead("#", "", 10)}
+                {render_thead("MAT CODE", "a1_Matcode", 20)}
+                {render_thead("STORE CODE", "a2_Storecode", 20)}
+                {render_thead("ACTION ID", "a3_ActionID", 20)}
+                {render_thead("SUBACTION ID", "a4_SubActionID", 20)}
+                {render_thead("DATE UPDATED", "a5_Dateupdated", 20)}
+                {render_thead("UPDATED BY", "a6_UpdatedBy", 20)}
+                {render_thead("PCS", "a7_Pcs", 20)}
+                {render_thead("CASES", "a8_Cases", 20)}
+                {render_thead("INNER BOX", "a9_InnerBox", 20)}
+                {/* {render_thead("EXPIRY DATE", "b1_ExpiryDate", 20)} */}
+                {render_thead("REMARKS", "b2_Remarks", 20)}
+                {/* {render_thead("EXPIRY DATES", "b3_ExpiryDates", 20)} */}
               </tr>
             </table>
           </div>
@@ -394,9 +414,9 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
                 ) : null}
                 {!is_loading ? (
                   <React.Fragment>
-                    {mcp_list.length !== 0 ? (
+                    {osa_list.length !== 0 ? (
                       <React.Fragment>
-                        {mcp_list.map((data) => {
+                        {osa_list.map((data) => {
                           return (
                             <tr
                               style={{
@@ -405,45 +425,44 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
                                 height: "4vh",
                               }}
                               className={`${
-                                selected_list_id === data.a1_ID
+                                selected_list_id === data.a0_ID
                                   ? "selected"
                                   : ""
                               }`}
-                              onClick={() => set_selected_list_id(data.a1_ID)}
+                              onClick={() => set_selected_list_id(data.a0_ID)}
                             >
                               {render_row(data.index, 10)}
-                              {render_row(data.b4_TDSCode, 20)}
-                              {render_row(data.a2_TDSName, 40)}
-                              {render_row(data.a3_SoldCode, 20)}
-                              {render_row(data.a4_SoldName, 50)}
-                              {render_row(data.a5_Chain, 30)}
-                              {render_row(data.a6_TDSCategory, 30)}
-                              {render_row(data.a7_Supervisor, 40)}
-                              {render_row(data.a8_Week, 20)}
-                              {render_row(data.a9_PlanVisit, 20)}
-                              {render_row(data.b1_Dateuploaded, 20)}
-                              {render_row(data.b2_UploadedBy, 20)}
-                              {render_row(data.b3_ActualDateVisited, 20)}
-                              {render_row(data.b5_Frequency, 20)}
-                              {render_row(data.b6_Period, 20)}
-                              {render_row(data.b7_Manager, 40)}
-                              {render_row(data.b9_RangeFrom, 20)}
-                              {render_row(data.c1_RangeTo, 20)}
-                              {render_row(data.c2_SoldToStreet, 40)}
-                              {render_row(data.c3_City, 25)}
-                              {render_row(data.c4_Area, 30)}
-                              {render_row(data.c5_Region, 20)}
-                              {render_row(data.c6_StoreClass, 20)}
-                              {render_row(data.c7_Channel, 40)}
-                              {render_row(data.z1_md_status, 20)}
-                              {render_row(data.z2_osa_status, 20)}
-                              {render_row(data.z3_ep_status, 20)}
+                              {render_row(data.a1_Matcode, 20)}
+                              {render_row(data.a2_Storecode, 20)}
+                              {render_row(data.a3_ActionID, 20)}
+                              {render_row(data.a4_SubActionID, 20)}
+                              {render_row(data.a5_Dateupdated, 20)}
+                              {render_row(data.a6_UpdatedBy, 20)}
+                              {render_row(data.a7_Pcs, 20)}
+                              {render_row(data.a8_Cases, 20)}
+                              {render_row(data.a9_InnerBox, 20)}
+                              {/* {render_row(data.b1_ExpiryDate, 20)} */}
+                              {render_row(data.b2_Remarks, 20)}
+                              {/* {render_row(data.b3_ExpiryDates, 20)} */}
+
+                              {/* a1_Matcode
+a2_Storecode
+a3_ActionID
+a4_SubActionID
+a5_Dateupdated
+a6_UpdatedBy
+a7_Pcs
+a8_Cases
+a9_InnerBox
+b1_ExpiryDate
+b2_Remarks
+b3_ExpiryDates */}
                             </tr>
                           );
                         })}
                       </React.Fragment>
                     ) : null}
-                    {mcp_list.length === 0 ? (
+                    {osa_list.length === 0 ? (
                       <React.Fragment>
                         <tr style={{ height: "70vh" }}>
                           <td style={{ width: "100vw" }}>
@@ -463,7 +482,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
         {/* - TABLE SECTION */}
         {/* + PAGINATION */}
         <div className="w-100" style={{ height: "7vh" }}>
-          {mcp_list.length !== 0 ? (
+          {osa_list.length !== 0 ? (
             <React.Fragment>
               <div
                 className="pg-container-fix"
@@ -531,4 +550,4 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
   );
 };
 
-export default P2_1_MCP_INDEX;
+export default P2_2_OSA_INDEX;

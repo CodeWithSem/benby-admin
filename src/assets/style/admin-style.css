@@ -21,6 +21,10 @@
   align-items: center;
 }
 
+.admin-page-label > .label-1:hover {
+  text-decoration: underline;
+}
+
 .admin-card {
   position: relative;
   height: 18vh;
