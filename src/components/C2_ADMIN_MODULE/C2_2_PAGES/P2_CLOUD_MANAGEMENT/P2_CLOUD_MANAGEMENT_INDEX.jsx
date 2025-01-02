@@ -9,7 +9,8 @@ import P2_6_EP_HISTORY_INDEX from "./P2_PAGES/P2_6_EP_HISTORY/P2_6_EP_HISTORY_IN
 import P2_7_MCL_INDEX from "./P2_PAGES/P2_7_MCL/P2_7_MCL_INDEX";
 import P2_8_STORE_MASTER_INDEX from "./P2_PAGES/P2_8_STORE_MASTER/P2_8_STORE_MASTER_INDEX";
 import P2_9_TDS_DATABASE_INDEX from "./P2_PAGES/P2_9_TDS_DATABASE/P2_9_TDS_DATABASE_INDEX";
-import P2_10_TDS_TAGGING_INDEX from "./P2_PAGES/P2_10_TDS_TAGGING/P2_10_TDS_TAGGING_INDEX";
+import P2_10_TDS_TAGGING_DATA_INDEX from "./P2_PAGES/P2_10_TDS_TAGGING_DATA/P2_10_TDS_TAGGING_DATA_INDEX";
+import P2_11_TDS_TAGGING_CHAIN_INDEX from "./P2_PAGES/P2_11_TDS_TAGGING_CHAIN/P2_11_TDS_TAGGING_CHAIN_INDEX";
 
 const P2_CLOUD_MANAGEMENT_INDEX = () => {
   const [page_display, set_page_display] = useState("");
@@ -296,7 +297,7 @@ const P2_CLOUD_MANAGEMENT_INDEX = () => {
                 </div>
               </div>
               {/* - TDS DATABASE */}
-              {/* + TDS TAGGING */}
+              {/* + TDS TAGGING (DATA) */}
               <div
                 className="admin-card content-center"
                 onClick={() => set_page_display("TDS Tagging")}
@@ -322,10 +323,40 @@ const P2_CLOUD_MANAGEMENT_INDEX = () => {
                     color: "var(--text-color)",
                   }}
                 >
-                  TDS Tagging
+                  TDS Tagging (Data)
                 </div>
               </div>
-              {/* - TDS TAGGING */}
+              {/* + TDS TAGGING (DATA) */}
+              {/* + TDS TAGGING (CHAIN) */}
+              <div
+                className="admin-card content-center"
+                onClick={() => set_page_display("Chain Tagging")}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "1vh",
+                    left: "1vh",
+                    height: "4vh",
+                    width: "4vh",
+                    background: "var(--primary-color)",
+                    borderRadius: "0.4vh",
+                  }}
+                  className="content-center"
+                >
+                  <FiDatabase style={{ fontSize: "2vh", color: "#FFF" }} />
+                </div>
+                <div
+                  style={{
+                    fontSize: "1.6vh",
+                    letterSpacing: "0.1vh",
+                    color: "var(--text-color)",
+                  }}
+                >
+                  TDS Tagging (Chain)
+                </div>
+              </div>
+              {/* + TDS TAGGING (CHAIN) */}
             </div>
           </React.Fragment>
         ) : null}
@@ -357,7 +388,10 @@ const P2_CLOUD_MANAGEMENT_INDEX = () => {
           <P2_9_TDS_DATABASE_INDEX set_page_display={set_page_display} />
         ) : null}
         {page_display === "TDS Tagging" ? (
-          <P2_10_TDS_TAGGING_INDEX set_page_display={set_page_display} />
+          <P2_10_TDS_TAGGING_DATA_INDEX set_page_display={set_page_display} />
+        ) : null}
+        {page_display === "Chain Tagging" ? (
+          <P2_11_TDS_TAGGING_CHAIN_INDEX set_page_display={set_page_display} />
         ) : null}
       </div>
     </React.Fragment>

@@ -17,7 +17,12 @@ const C2_1_SIDEBAR_INDEX = ({ active_page_label, set_active_page_label }) => {
       {/* Header */}
       <div className="sidebar-header">
         <div className="sidebar-logo">
-          <img className="h-100 w-100" src={logo} alt="" />
+          <img
+            className="h-100 w-100"
+            style={{ display: "block" }}
+            src={logo}
+            alt=""
+          />
         </div>
         <div className="sidebar-header-content">
           <div className="sidebar-header-title">BENBY MERCH APP</div>
