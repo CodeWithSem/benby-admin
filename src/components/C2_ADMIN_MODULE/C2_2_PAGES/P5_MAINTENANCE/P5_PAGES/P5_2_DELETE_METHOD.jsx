@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { db } from "../../../../../assets/scripts/firebase";
-import { set, ref } from "firebase/database";
+import { set, get, ref, remove } from "firebase/database";
 import { FaAnglesRight } from "react-icons/fa6";
 import { MdClose } from "react-icons/md";
+import { format_date } from "../../../../../assets/scripts/functions/format_function";
 
 const P5_2_DELETE_METHOD = ({ set_page_display }) => {
   const [confirm_delete_modal, set_confirm_delete_modal] = useState(false);
@@ -21,6 +22,40 @@ const P5_2_DELETE_METHOD = ({ set_page_display }) => {
       alert("Error storing data: " + error.message);
     }
   };
+
+  // const get_osa_raw_data = async () => {
+  //   const dbRef = ref(db, "DB1_BENBY_MERCH_APP/TBL_OSA/DATA");
+  //   try {
+  //     const snapshot = await get(dbRef);
+  //     if (snapshot.exists()) {
+  //       const parentIds = Object.keys(snapshot.val());
+  //       console.log("Parent IDs:", parentIds);
+  //       return parentIds;
+  //     } else {
+  //       console.log("No data found at the specified path.");
+  //       return [];
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching parent IDs:", error);
+  //     return [];
+  //   }
+  // };
+
+  // const deleteParentIds = async () => {
+  //   const parentIds = await get_osa_raw_data();
+  //   if (parentIds.length === 0) return;
+
+  //   parentIds.forEach(async (parentId) => {
+  //     const parentRef = ref(db, `DB1_BENBY_MERCH_APP/TBL_OSA/DATA/${parentId}`);
+  //     try {
+  //       // Deleting the parent node from the database
+  //       await remove(parentRef);
+  //       console.log(`Parent ID ${parentId} has been deleted.`);
+  //     } catch (error) {
+  //       console.error(`Error deleting Parent ID ${parentId}:`, error);
+  //     }
+  //   });
+  // };
 
   // RETURN ORIGIN
   return (
@@ -131,6 +166,7 @@ const P5_2_DELETE_METHOD = ({ set_page_display }) => {
           className="h-100 btn-general btn-red btn-sm"
           style={{ padding: "0 1vh", letterSpacing: "0.1vh" }}
           onClick={() => set_confirm_delete_modal(true)}
+          // onClick={deleteParentIds}
         >
           DELETE DATA
         </button>
