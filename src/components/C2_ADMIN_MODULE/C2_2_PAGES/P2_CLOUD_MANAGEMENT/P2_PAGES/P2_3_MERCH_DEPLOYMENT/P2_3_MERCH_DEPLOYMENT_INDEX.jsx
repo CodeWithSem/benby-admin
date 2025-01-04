@@ -115,7 +115,6 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
       "a3_Storecode",
       "a3_Storename",
       "a7_PlantillaCode",
-      "a7_PlantillaCode",
     ];
     return data.filter((item) => {
       const search_by_text = fields_to_search.some((field) => {
@@ -331,7 +330,7 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
                   "a8_PlannedMerchandiserStatus",
                   25
                 )}
-                {render_thead("DATABASE CATEGORY", "a9_DatabaseCategory", 20)}
+                {render_thead("DATABASE CATEGORY", "a9_DatabaseCategory", 25)}
                 {render_thead("DISER FULLNAME", "b1_MerchandiserFullName", 50)}
                 {render_thead("SSS NUMBER", "b2_SSSNumber", 20)}
                 {render_thead("DATE UPLOADED", "b3_Dateuploaded", 20)}
@@ -420,7 +419,7 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
                                 data.a8_PlannedMerchandiserStatus,
                                 25
                               )}
-                              {render_row(data.a9_DatabaseCategory, 20)}
+                              {render_row(data.a9_DatabaseCategory, 25)}
                               {render_row(data.b1_MerchandiserFullName, 50)}
                               {render_row(data.b2_SSSNumber, 20)}
                               {render_row(data.b3_Dateuploaded, 20)}

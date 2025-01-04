@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import { Oval } from "react-loader-spinner";
 import { db } from "../../../../../../assets/scripts/firebase";
 import { get, ref } from "firebase/database";
-import { v4 as uuidv4 } from "uuid";
 import { FaAnglesRight, FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import { MdSearch } from "react-icons/md";
 import {
@@ -12,7 +12,7 @@ import {
   MdKeyboardArrowRight,
 } from "react-icons/md";
 
-const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
+const P3_1_MCP_INDEX = ({ set_page_display }) => {
   const cont_1_ref = useRef(null);
   const cont_2_ref = useRef(null);
 
@@ -32,12 +32,59 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
     }
   };
 
+  // + GET METHOD MCP
+  // + GET METHOD MCP
+  const [abort_controller_get_MCP, set_abort_controller_get_MCP] =
+    useState(null);
+
+  const [db_mcp_list, set_db_mcp_list] = useState([]);
+  const [is_get_MCP_loading, set_is_get_MCP_loading] = useState(false);
+  const [show_get_MCP_alert, set_show_get_MCP_alert] = useState(false);
+  const [show_push_MCP_alert, set_show_push_MCP_alert] = useState(false);
+  const [data_exist, set_data_exist] = useState(false);
+
+  const get_MCP = async () => {
+    set_db_mcp_list([]);
+    const controller = new AbortController();
+    set_abort_controller_get_MCP(controller); // Store the controller for later use
+
+    set_is_get_MCP_loading(true);
+    set_show_get_MCP_alert(true);
+
+    try {
+      const response = await axios.get(
+        "https://benbyextportal.com/home/api/get/GetMCP?Storecode=0&TDScode=0",
+        {
+          signal: controller.signal, // Pass the signal to Axios
+        }
+      );
+      set_db_mcp_list(response.data);
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        console.warn("Request canceled", error.message);
+      } else {
+        console.error("Error fetching data:", error); // Handle other errors
+      }
+    } finally {
+      set_is_get_MCP_loading(false);
+      set_show_get_MCP_alert(false);
+    }
+  };
+
+  // Cancel function
+  const cancel_get_MCP = () => {
+    if (abort_controller_get_MCP) {
+      abort_controller_get_MCP.abort(); // Cancel the request
+      set_abort_controller_get_MCP(null); // Reset the controller after aborting
+    }
+  };
+  // - GET METHOD MCP
+  // - GET METHOD MCP
+
   // + PAGINATION PROCESS ========================================
-  const [chain_tagging_raw_data, set_chain_tagging_raw_data] = useState([]);
-  const [chain_tagging_list, set_chain_tagging_list] = useState([]);
+  const [mcp_list, set_mcp_list] = useState([]);
   const [selected_list_id, set_selected_list_id] = useState("");
-  const [refresh_chain_tagging_list, set_refresh_chain_tagging_list] =
-    useState(false);
+  const [refresh_mcp_list, set_refresh_mcp_list] = useState(false);
   const [total_count, set_total_count] = useState(0);
   const [is_loading, set_is_loading] = useState(false);
   const [search_query, set_search_query] = useState("");
@@ -49,56 +96,12 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
   const data_per_page = 50;
   const max_visible_page = 5;
 
-  const get_chain_tagging_raw_data = async () => {
-    try {
-      set_is_loading(true);
-      const response = await get(
-        ref(db, `/DB1_BENBY_MERCH_APP/TBL_TDS_TAGGING/CHAIN_TAGGING`)
-      );
-      const data = response.val();
-      let chain_tagging_data = [];
-      if (data) {
-        Object.keys(data).forEach((tds_code) => {
-          const tds_code_array = data[tds_code];
-          if (tds_code_array) {
-            Object.keys(tds_code_array).forEach((chain_id) => {
-              const chain_list = tds_code_array[chain_id];
-              if (chain_list) {
-                const data = {
-                  a0_ID: uuidv4(),
-                  ...chain_list,
-                };
-                chain_tagging_data.push(data);
-              }
-            });
-          }
-        });
-      }
-      console.log(chain_tagging_data);
-      set_chain_tagging_raw_data(chain_tagging_data);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      set_is_loading(false);
-    }
-  };
-
   useEffect(() => {
-    get_chain_tagging_raw_data();
-  }, []);
+    filter_data(db_mcp_list);
+  }, [db_mcp_list, current_page, search_query, refresh_mcp_list, sort_config]);
 
-  useEffect(() => {
-    filter_data(chain_tagging_raw_data);
-  }, [
-    chain_tagging_raw_data,
-    current_page,
-    search_query,
-    refresh_chain_tagging_list,
-    sort_config,
-  ]);
-
-  const filter_data = (mcl_data) => {
-    const filtered_data = apply_search_filter(mcl_data, search_query);
+  const filter_data = (mcp_data) => {
+    const filtered_data = apply_search_filter(mcp_data, search_query);
     const filtered_total_count = filtered_data.length;
     set_total_count(filtered_total_count);
     if (sort_config.key) {
@@ -119,11 +122,29 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
       ...item,
       index: start_index + index + 1,
     }));
-    set_chain_tagging_list(indexed_data);
+    set_mcp_list(indexed_data);
   };
 
   const apply_search_filter = (data, query) => {
-    const fields_to_search = ["a1_TDSCode", "a2_Chain", "a3_ChainID"];
+    const fields_to_search = [
+      "id",
+      "tDSName",
+      "soldCode",
+      "soldName",
+      "chain",
+      "tDSCategory",
+      "supervisor",
+      "week",
+      "dateuploaded",
+      "tDSCode",
+      "rangeFrom",
+      "rangeTo",
+      "soldToStreet",
+      "city",
+      "area",
+      "region",
+      "channel",
+    ];
     return data.filter((item) => {
       const search_by_text = fields_to_search.some((field) => {
         const value = item[field];
@@ -179,7 +200,7 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
       direction = "desc";
     }
     set_sort_config({ key, direction });
-    set_refresh_chain_tagging_list((prev) => !prev);
+    set_refresh_mcp_list((prev) => !prev);
   };
   // - PAGINATION PROCESS ========================================
 
@@ -191,7 +212,6 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
           position: "relative",
           cursor: "pointer",
           minWidth: `${width}vh`,
-          borderRight: "0.1vh solid #fff",
         }}
         onClick={() => {
           if (column) {
@@ -231,6 +251,66 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
     );
   };
 
+  const RENDER_LOADING_MODAL = () => {
+    return (
+      <React.Fragment>
+        <div class={`modal-overlay`}></div>
+        <div
+          class={`modal`}
+          style={{
+            width: "50vh",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              height: "10vh",
+            }}
+            className="content-center"
+          >
+            <Oval
+              visible={true}
+              height="4vh"
+              width="4vh"
+              strokeWidth={10}
+              color="var(--primary-color)"
+              secondaryColor="var(--primary-color-light)"
+              ariaLabel="oval-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+            />
+          </div>
+          <div style={{ color: "var(--text-color)", fontSize: "1.8vh" }}>
+            Fetching MCP Data from database...
+          </div>
+          <div
+            style={{
+              width: "100%",
+              height: "9vh",
+              padding: "2vh",
+            }}
+          >
+            <button
+              className="btn-general btn-red w-100 h-100"
+              style={{
+                borderRadius: "0.4vh",
+                fontSize: "1.6vh",
+                letterSpacing: "0.1vh",
+              }}
+              onClick={cancel_get_MCP}
+            >
+              CANCEL
+            </button>
+          </div>
+        </div>
+      </React.Fragment>
+    );
+  };
+
   // RETURN ORIGIN
   return (
     <React.Fragment>
@@ -242,12 +322,12 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
             style={{ cursor: "pointer" }}
             className="label-1"
           >
-            Cloud Management
+            Sync Database
           </div>
           <div className="content-center" style={{ width: "4vh" }}>
             <FaAnglesRight style={{ fontSize: "1.2vh" }} />
           </div>
-          <div>TDS Tagging (Chain)</div>
+          <div>MCP</div>
           <div
             className="h-100 content-center"
             style={{ position: "absolute", right: "0", gap: "1vh" }}
@@ -255,9 +335,9 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
             <button
               className="h-100 btn-general btn-green btn-sm"
               style={{ padding: "0 2vh" }}
-              onClick={() => set_page_display("")}
+              onClick={() => get_MCP()}
             >
-              Export as Excel
+              Get from Database
             </button>
             <button
               className="h-100 btn-general btn-gray btn-sm"
@@ -325,10 +405,30 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
                   userSelect: "none",
                 }}
               >
-                {render_thead("#", "", 10)}
-                {render_thead("TDS CODE", "a1_TDSCode", 20)}
-                {render_thead("CHAIN", "a2_Chain", 40)}
-                {render_thead("CHAIN ID", "a3_ChainID", 15)}
+                {render_thead("#", "", "10")}
+                {render_thead("ID", "id", "15")}
+                {render_thead("TDS NAME", "tDSName", "40")}
+                {render_thead("SOLD CODE", "soldCode", "20")}
+                {render_thead("SOLD NAME", "soldName", "50")}
+                {render_thead("CHAIN", "chain", "30")}
+                {render_thead("TDS CATEGORY", "tDSCategory", "20")}
+                {render_thead("SUPERVISOR", "supervisor", "40")}
+                {render_thead("WEEK", "week", "20")}
+                {render_thead("PLAN VISIT", "planVisit", "20")}
+                {render_thead("DATE UPLOADED", "dateuploaded", "20")}
+                {render_thead("UPLOADED BY", "uploadedBy", "20")}
+                {render_thead("TDS CODE", "tDSCode", "20")}
+                {render_thead("FREQUENCY", "frequency", "20")}
+                {render_thead("PERIOD", "period", "20")}
+                {render_thead("MANAGER", "manager", "40")}
+                {render_thead("RANGE FROM", "rangeFrom", "20")}
+                {render_thead("RANGE TO", "rangeTo", "20")}
+                {render_thead("SOLD TO STREET", "soldToStreet", "50")}
+                {render_thead("CITY", "city", "30")}
+                {render_thead("AREA", "area", "30")}
+                {render_thead("REGION", "region", "30")}
+                {render_thead("STORE CLASS", "storeClass", "20")}
+                {render_thead("CHANNEL", "channel", "20")}
               </tr>
             </table>
           </div>
@@ -375,9 +475,9 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
                 ) : null}
                 {!is_loading ? (
                   <React.Fragment>
-                    {chain_tagging_list.length !== 0 ? (
+                    {mcp_list.length !== 0 ? (
                       <React.Fragment>
-                        {chain_tagging_list.map((data) => {
+                        {mcp_list.map((data) => {
                           return (
                             <tr
                               style={{
@@ -386,22 +486,40 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
                                 height: "4vh",
                               }}
                               className={`${
-                                selected_list_id === data.a0_ID
-                                  ? "selected"
-                                  : ""
+                                selected_list_id === data.id ? "selected" : ""
                               }`}
-                              onClick={() => set_selected_list_id(data.a0_ID)}
+                              onClick={() => set_selected_list_id(data.id)}
                             >
                               {render_row(data.index, 10)}
-                              {render_row(data.a1_TDSCode, 20)}
-                              {render_row(data.a2_Chain, 40)}
-                              {render_row(data.a3_ChainID, 15)}
+                              {render_row(data.id, 15)}
+                              {render_row(data.tDSName, 40)}
+                              {render_row(data.soldCode, 20)}
+                              {render_row(data.soldName, 50)}
+                              {render_row(data.chain, 30)}
+                              {render_row(data.tDSCategory, 20)}
+                              {render_row(data.supervisor, 40)}
+                              {render_row(data.week, 20)}
+                              {render_row(data.planVisit, 20)}
+                              {render_row(data.dateuploaded, 20)}
+                              {render_row(data.uploadedBy, 20)}
+                              {render_row(data.tDSCode, 20)}
+                              {render_row(data.frequency, 20)}
+                              {render_row(data.period, 20)}
+                              {render_row(data.manager, 40)}
+                              {render_row(data.rangeFrom, 20)}
+                              {render_row(data.rangeTo, 20)}
+                              {render_row(data.soldToStreet, 50)}
+                              {render_row(data.city, 30)}
+                              {render_row(data.area, 30)}
+                              {render_row(data.region, 30)}
+                              {render_row(data.storeClass, 20)}
+                              {render_row(data.channel, 20)}
                             </tr>
                           );
                         })}
                       </React.Fragment>
                     ) : null}
-                    {chain_tagging_list.length === 0 ? (
+                    {mcp_list.length === 0 ? (
                       <React.Fragment>
                         <tr style={{ height: "70vh" }}>
                           <td style={{ width: "100vw" }}>
@@ -421,7 +539,7 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
         {/* - TABLE SECTION */}
         {/* + PAGINATION */}
         <div className="w-100" style={{ height: "7vh" }}>
-          {chain_tagging_list.length !== 0 ? (
+          {mcp_list.length !== 0 ? (
             <React.Fragment>
               <div
                 className="pg-container-fix"
@@ -485,8 +603,9 @@ const P2_11_TDS_TAGGING_CHAIN_INDEX = ({ set_page_display }) => {
         </div>
         {/* - PAGINATION */}
       </div>
+      {is_get_MCP_loading ? RENDER_LOADING_MODAL() : null}
     </React.Fragment>
   );
 };
 
-export default P2_11_TDS_TAGGING_CHAIN_INDEX;
+export default P3_1_MCP_INDEX;

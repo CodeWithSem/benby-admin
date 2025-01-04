@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { MdOutlineCloudSync } from "react-icons/md";
+import P3_1_MCP_INDEX from "./P3_PAGES/P3_1_MCP/P3_1_MCP_INDEX";
+import P3_2_OSA_INDEX from "./P3_PAGES/P3_2_OSA/P3_2_OSA_INDEX";
+import P3_3_MERCH_DEPLOYMENT_INDEX from "./P3_PAGES/P3_3_MERCH_DEPLOYMENT/P3_3_MERCH_DEPLOYMENT_INDEX";
+import P3_4_EXECUTION_PLANNER_INDEX from "./P3_PAGES/P3_4_EXECUTION_PLANNER/P3_4_EXECUTION_PLANNER_INDEX";
 
 const P3_SYNC_DATABASE = () => {
+  const [page_display, set_page_display] = useState("");
   // RETURN ORIGIN
   return (
     <React.Fragment>
@@ -14,7 +19,10 @@ const P3_SYNC_DATABASE = () => {
           }}
         >
           {/* + MCP */}
-          <div className="admin-card content-center">
+          <div
+            className="admin-card content-center"
+            onClick={() => set_page_display("MCP")}
+          >
             <div
               style={{
                 position: "absolute",
@@ -31,7 +39,7 @@ const P3_SYNC_DATABASE = () => {
             </div>
             <div
               style={{
-                fontSize: "1.8vh",
+                fontSize: "1.6vh",
                 letterSpacing: "0.1vh",
                 color: "var(--text-color)",
               }}
@@ -41,7 +49,10 @@ const P3_SYNC_DATABASE = () => {
           </div>
           {/* - MCP */}
           {/* + OSA */}
-          <div className="admin-card content-center">
+          <div
+            className="admin-card content-center"
+            onClick={() => set_page_display("OSA")}
+          >
             <div
               style={{
                 position: "absolute",
@@ -58,7 +69,7 @@ const P3_SYNC_DATABASE = () => {
             </div>
             <div
               style={{
-                fontSize: "1.8vh",
+                fontSize: "1.6vh",
                 letterSpacing: "0.1vh",
                 color: "var(--text-color)",
               }}
@@ -68,7 +79,10 @@ const P3_SYNC_DATABASE = () => {
           </div>
           {/* - OSA */}
           {/* + MERCH DEPLOYMENT */}
-          <div className="admin-card content-center">
+          <div
+            className="admin-card content-center"
+            onClick={() => set_page_display("Merch Deployment")}
+          >
             <div
               style={{
                 position: "absolute",
@@ -85,7 +99,7 @@ const P3_SYNC_DATABASE = () => {
             </div>
             <div
               style={{
-                fontSize: "1.8vh",
+                fontSize: "1.6vh",
                 letterSpacing: "0.1vh",
                 color: "var(--text-color)",
               }}
@@ -95,7 +109,10 @@ const P3_SYNC_DATABASE = () => {
           </div>
           {/* - MERCH DEPLOYMENT */}
           {/* + EXECUTION PLANNER */}
-          <div className="admin-card content-center">
+          <div
+            className="admin-card content-center"
+            onClick={() => set_page_display("Execution Planner")}
+          >
             <div
               style={{
                 position: "absolute",
@@ -112,7 +129,7 @@ const P3_SYNC_DATABASE = () => {
             </div>
             <div
               style={{
-                fontSize: "1.8vh",
+                fontSize: "1.6vh",
                 letterSpacing: "0.1vh",
                 color: "var(--text-color)",
               }}
@@ -139,7 +156,7 @@ const P3_SYNC_DATABASE = () => {
             </div>
             <div
               style={{
-                fontSize: "1.8vh",
+                fontSize: "1.6vh",
                 letterSpacing: "0.1vh",
                 color: "var(--text-color)",
               }}
@@ -166,7 +183,7 @@ const P3_SYNC_DATABASE = () => {
             </div>
             <div
               style={{
-                fontSize: "1.8vh",
+                fontSize: "1.6vh",
                 letterSpacing: "0.1vh",
                 color: "var(--text-color)",
               }}
@@ -193,7 +210,7 @@ const P3_SYNC_DATABASE = () => {
             </div>
             <div
               style={{
-                fontSize: "1.8vh",
+                fontSize: "1.6vh",
                 letterSpacing: "0.1vh",
                 color: "var(--text-color)",
               }}
@@ -220,7 +237,7 @@ const P3_SYNC_DATABASE = () => {
             </div>
             <div
               style={{
-                fontSize: "1.8vh",
+                fontSize: "1.6vh",
                 letterSpacing: "0.1vh",
                 color: "var(--text-color)",
               }}
@@ -230,6 +247,18 @@ const P3_SYNC_DATABASE = () => {
           </div>
           {/* - TDS TAGGING */}
         </div>
+        {page_display === "MCP" ? (
+          <P3_1_MCP_INDEX set_page_display={set_page_display} />
+        ) : null}
+        {page_display === "OSA" ? (
+          <P3_2_OSA_INDEX set_page_display={set_page_display} />
+        ) : null}
+        {page_display === "Merch Deployment" ? (
+          <P3_3_MERCH_DEPLOYMENT_INDEX set_page_display={set_page_display} />
+        ) : null}
+        {page_display === "Execution Planner" ? (
+          <P3_4_EXECUTION_PLANNER_INDEX set_page_display={set_page_display} />
+        ) : null}
       </div>
     </React.Fragment>
   );
