@@ -41,3 +41,16 @@ export function format_time(date_value, format) {
     return "";
   }
 }
+
+export function format_raw_date(date_value, format) {
+  const date = new Date(date_value);
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed, so we add 1
+  const day = String(date.getDate()).padStart(2, "0");
+  const year = date.getFullYear();
+
+  if (format === "/") {
+    return `${month}/${day}/${year}`;
+  } else {
+    return `${month}-${day}-${year}`;
+  }
+}

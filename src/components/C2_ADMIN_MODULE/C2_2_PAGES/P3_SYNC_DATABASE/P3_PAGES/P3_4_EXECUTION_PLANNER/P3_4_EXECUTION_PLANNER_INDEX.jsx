@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { Oval } from "react-loader-spinner";
 import { db } from "../../../../../../assets/scripts/firebase";
-import { get, ref } from "firebase/database";
+import { set, ref } from "firebase/database";
 import { FaAnglesRight, FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import { MdSearch } from "react-icons/md";
 import {
@@ -12,6 +12,7 @@ import {
   MdKeyboardDoubleArrowRight,
   MdKeyboardArrowRight,
 } from "react-icons/md";
+import { format_raw_date } from "../../../../../../assets/scripts/functions/format_function";
 
 const P3_4_EXECUTION_PLANNER_INDEX = ({ set_page_display }) => {
   const cont_1_ref = useRef(null);
@@ -130,15 +131,15 @@ const P3_4_EXECUTION_PLANNER_INDEX = ({ set_page_display }) => {
 
   const apply_search_filter = (data, query) => {
     const fields_to_search = [
-      "benbyID",
       "storecode",
-      "storename",
-      "plantillaCode",
-      "merchandiserFullName",
+      "chain",
+      "brand",
+      "pOSM",
+      "channel",
       "dateuploaded",
-      "plannedConversion",
-      "plannedMerchandiserStatus",
-      "sSSNumber",
+      "tDSName",
+      "employeeID",
+      "activity",
     ];
     return data.filter((item) => {
       const search_by_text = fields_to_search.some((field) => {
@@ -198,6 +199,135 @@ const P3_4_EXECUTION_PLANNER_INDEX = ({ set_page_display }) => {
     set_refresh_ep_list((prev) => !prev);
   };
   // - PAGINATION PROCESS ========================================
+  // + PUSH TO CLOUD METHOD EP
+  const [batch_process, set_batch_process] = useState("");
+  const push_to_cloud_ep = async (
+    data,
+    batch_size = 1000,
+    delay = 500,
+    abort_controller
+  ) => {
+    set_is_get_EP_loading(true);
+    set_show_push_EP_alert(true);
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    try {
+      const process_batch = async (batch) => {
+        const promises = batch.map(async (item) => {
+          // Check if the operation is cancelled
+          if (abort_controller.signal.aborted) {
+            throw new Error("Operation cancelled");
+          }
+
+          const data_ref = ref(
+            db,
+            `/DB2_BENBY_MERCH_APP/TBL_EXECUTION_PLANNER_1/DATA/${item.storecode}/${item.id}`
+          );
+
+          // Set the data (you may need to adapt this to support cancellation)
+          await set(data_ref, {
+            a1_ID: parseInt(item.id),
+            a2_Storecode: item.storecode || "",
+            a3_Chain: item.chain || "",
+            a4_Brand: item.brand || "",
+            a5_POSM: item.pOSM || "",
+            a6_Channel: item.channel || "",
+            a7_DurationFrom: format_raw_date(item.durationFrom, "/") || "",
+            a8_DurationTo: format_raw_date(item.durationTo, "/") || "",
+            a9_Dateuploaded: format_raw_date(item.dateuploaded, "/") || "",
+            b1_UploadedBy: item.uploadedBy || "",
+            b2_Check1: parseInt(item.check1) || 0,
+            b3_Check2: parseInt(item.check2) || 0,
+            b4_Check3: parseInt(item.check3) || 0,
+            b5_Check4: parseInt(item.check4) || 0,
+            b6_Check5: parseInt(item.check5) || 0,
+            b7_Remarks: item.remarks || "",
+            b8_TLName: item.tLName || "",
+            b9_TDSName: item.tDSName || "",
+            c1_EmployeeID: item.employeeID || "",
+            c2_ActualPictureLink: item.actualPictureLink || "",
+            c3_Activity: item.activity || "",
+            c4_Manager: item.manager || "",
+            c5_AddColumn: item.addColumn || "",
+            c6_StoreClass: item.storeClass || "",
+            c7_TDSGroup: item.tDSGroup || "",
+            c8_TL1: item.tL1 || "",
+            c9_TL2: item.tL2 || "",
+            d1_Area: item.area || "",
+            d2_City: item.city || "",
+            d3_Region: item.region || "",
+            d4_Position: item.position || "",
+            d5_PermitLink: item.permitLink || "",
+            d6_Points: item.points || 0,
+            d7_TypeOfEP: item.typeOfEP || "",
+            d8_CorrectLocationUpload: item.correctLocationUpload || "",
+            d9_TypeOfActivity: item.typeOfActivity || "",
+            e1_GroupID: item.groupID || "",
+            e2_SoldStreet: item.soldStreet || "",
+            e3_1_ChannelMerch: item.channelMerch || "",
+            e3_2_EPSource: item.ePSource || "",
+            e3_3_CameraOnly: item.cameraOnly || 0,
+            e4_Check1Remarks: "",
+            e5_Check2Remarks: "",
+            e6_Check3Remarks: "",
+            e7_Check4Remarks: "",
+            e8_Check5Remarks: "",
+          });
+        });
+
+        // Wait for all promises to resolve
+        await Promise.all(promises);
+      };
+
+      for (let i = 0; i < data.length; i += batch_size) {
+        const batch = data.slice(i, i + batch_size);
+
+        // Check cancellation before processing the batch
+        if (abort_controller.signal.aborted) {
+          console.log("Operation cancelled before processing batch.");
+          set_show_push_EP_alert(false);
+          break; // Exit the loop if cancelled
+        }
+
+        await process_batch(batch); // Process the current batch
+
+        console.log(`Processed batch ${Math.floor(i / batch_size) + 1}`);
+        set_batch_process(
+          `Processed Batch : ${Math.floor(i / batch_size) + 1}`
+        );
+
+        // Sleep for the specified delay
+        await sleep(delay);
+      }
+    } catch (error) {
+      if (error.message === "Operation cancelled") {
+        console.log("Push operation was cancelled.");
+      } else {
+        console.error("Error storing data:", error);
+      }
+    } finally {
+      set_is_get_EP_loading(false);
+      set_show_push_EP_alert(false);
+    }
+  };
+
+  // Example usage in your component
+  const [abort_controller, set_abort_controller] = useState(null);
+
+  const handle_push_to_cloud_ep = (data) => {
+    const controller = new AbortController();
+    set_abort_controller(controller);
+
+    push_to_cloud_ep(data, 1000, 300, controller);
+  };
+
+  const cancel_push_to_cloud_ep = () => {
+    if (abort_controller) {
+      abort_controller.abort();
+      set_abort_controller(null); // Reset the controller after aborting
+    }
+  };
+
+  // - PUSH TO CLOUD METHOD EP
 
   const render_thead = (label, column, width) => {
     return (
@@ -280,7 +410,7 @@ const P3_4_EXECUTION_PLANNER_INDEX = ({ set_page_display }) => {
             />
           </div>
           <div style={{ color: "var(--text-color)", fontSize: "1.8vh" }}>
-            Fetching MD Data from database...
+            Fetching EP Data from database...
           </div>
           <div
             style={{
@@ -297,6 +427,76 @@ const P3_4_EXECUTION_PLANNER_INDEX = ({ set_page_display }) => {
                 letterSpacing: "0.1vh",
               }}
               onClick={cancel_get_EP}
+            >
+              CANCEL
+            </button>
+          </div>
+        </div>
+      </React.Fragment>
+    );
+  };
+
+  const RENDER_PUSH_MODAL = () => {
+    return (
+      <React.Fragment>
+        <div class={`modal-overlay`}></div>
+        <div
+          class={`modal`}
+          style={{
+            width: "50vh",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              height: "10vh",
+            }}
+            className="content-center"
+          >
+            <Oval
+              visible={true}
+              height="4vh"
+              width="4vh"
+              strokeWidth={10}
+              color="var(--primary-color)"
+              secondaryColor="var(--primary-color-light)"
+              ariaLabel="oval-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+            />
+          </div>
+          <div style={{ color: "var(--text-color)", fontSize: "1.8vh" }}>
+            Transfering EP Data to cloud...
+          </div>
+          <div
+            className="content-center"
+            style={{
+              color: "var(--text-color)",
+              fontSize: "1.8vh",
+              height: "7vh",
+            }}
+          >
+            {batch_process}
+          </div>
+          <div
+            style={{
+              width: "100%",
+              height: "9vh",
+              padding: "2vh",
+            }}
+          >
+            <button
+              className="btn-general btn-red w-100 h-100"
+              style={{
+                borderRadius: "0.4vh",
+                fontSize: "1.6vh",
+                letterSpacing: "0.1vh",
+              }}
+              onClick={cancel_push_to_cloud_ep}
             >
               CANCEL
             </button>
@@ -333,6 +533,18 @@ const P3_4_EXECUTION_PLANNER_INDEX = ({ set_page_display }) => {
               onClick={() => get_EP()}
             >
               Get from Database
+            </button>
+            <button
+              className="h-100 btn-general btn-green btn-sm"
+              style={{ padding: "0 2vh" }}
+              onClick={() => {
+                handle_push_to_cloud_ep(db_ep_list);
+              }}
+              disabled={
+                is_get_EP_loading || db_ep_list.length === 0 ? true : false
+              }
+            >
+              PUSH to Cloud
             </button>
             <button
               className="h-100 btn-general btn-gray btn-sm"
@@ -398,36 +610,48 @@ const P3_4_EXECUTION_PLANNER_INDEX = ({ set_page_display }) => {
                   textAlign: "center",
                   fontSize: "1.2vh",
                   userSelect: "none",
-                  borderRight: "0.1vh solid #fff",
                 }}
               >
                 {render_thead("#", "", 10)}
                 {render_thead("ID", "id", 15)}
-                {render_thead("BENBY ID", "benbyID", 20)}
                 {render_thead("STORE CODE", "storecode", 20)}
-                {render_thead("STORE NAME", "storename", 50)}
-                {render_thead("REGION", "region", 20)}
-                {render_thead("AGENCY", "agency", 20)}
-                {render_thead("PLANNED CONVERSION", "plannedConversion", 30)}
-                {render_thead("PLANTILLA CODE", "plantillaCode", 20)}
-                {render_thead(
-                  "PLANNED MERCH STATUS",
-                  "plannedMerchandiserStatus",
-                  25
-                )}
-                {render_thead("DATABASE CATEGORY", "databaseCategory", 25)}
-                {render_thead("DISER FULLNAME", "merchandiserFullName", 50)}
-                {render_thead("SSS NUMBER", "sSSNumber", 20)}
+                {render_thead("CHAIN", "chain", 30)}
+                {render_thead("BRAND", "brand", 30)}
+                {render_thead("POSM", "pOSM", 30)}
+                {render_thead("CHANNEL", "channel", 30)}
+                {render_thead("DURATION FROM", "durationFrom", 20)}
+                {render_thead("DURATION TO", "durationTo", 20)}
                 {render_thead("DATE UPLOADED", "dateuploaded", 20)}
                 {render_thead("UPLOADED BY", "uploadedBy", 20)}
-                {render_thead("VACANT", "vacant", 20)}
-                {render_thead("DAY OFF", "dayOff", 20)}
-                {render_thead("SCHEDULE", "diserSchedule", 50)}
-                {render_thead("STATUS", "diserStatus", 20)}
-                {render_thead("TOTAL HOURS", "totalHours", 20)}
-                {render_thead("TOTAL DAYS", "totalDays", 20)}
-                {render_thead("TIME IN", "timeIN", 20)}
-                {render_thead("TIME OUT", "timeOUT", 20)}
+                {render_thead("CHECK 1", "check1", 10)}
+                {render_thead("CHECK 2", "check2", 10)}
+                {render_thead("CHECK 3", "check3", 10)}
+                {render_thead("CHECK 4", "check4", 10)}
+                {render_thead("CHECK 5", "check5", 10)}
+                {render_thead("TDS NAME", "tDSName", 50)}
+                {render_thead("EMPLOYEE ID", "employeeID", 20)}
+                {render_thead("ACTIVITY", "activity", 50)}
+                {render_thead("MANAGER", "manager", 50)}
+                {render_thead("STORE CLASS", "storeClass", 20)}
+                {render_thead("TDS GROUP", "tDSGroup", 20)}
+                {render_thead("TL 1", "tL1", 50)}
+                {render_thead("TL 2", "tL2", 50)}
+                {render_thead("AREA", "area", 30)}
+                {render_thead("CITY", "city", 30)}
+                {render_thead("REGION", "region", 30)}
+                {render_thead("POSITION", "position", 20)}
+                {render_thead("POINTS", "points", 20)}
+                {render_thead("TYPE OF EP", "typeOfEP", 20)}
+                {render_thead(
+                  "CORRECT LOC UPLOAD",
+                  "correctLocationUpload",
+                  30
+                )}
+                {render_thead("TYPE OF ACTIVITY", "typeOfActivity", 30)}
+                {render_thead("GROUP ID", "groupID", 20)}
+                {render_thead("SOLD STREET", "soldStreet", 50)}
+                {render_thead("CHANNEL MERCH", "channelMerch", 30)}
+                {render_thead("EP SOURCE", "ePSource", 20)}
               </tr>
             </table>
           </div>
@@ -493,27 +717,40 @@ const P3_4_EXECUTION_PLANNER_INDEX = ({ set_page_display }) => {
                             >
                               {render_row(data.index, 10)}
                               {render_row(data.id, 15)}
-                              {render_row(data.benbyID, 20)}
                               {render_row(data.storecode, 20)}
-                              {render_row(data.storename, 50)}
-                              {render_row(data.region, 20)}
-                              {render_row(data.agency, 20)}
-                              {render_row(data.plannedConversion, 30)}
-                              {render_row(data.plantillaCode, 20)}
-                              {render_row(data.plannedMerchandiserStatus, 25)}
-                              {render_row(data.databaseCategory, 25)}
-                              {render_row(data.merchandiserFullName, 50)}
-                              {render_row(data.sSSNumber, 20)}
+                              {render_row(data.chain, 30)}
+                              {render_row(data.brand, 30)}
+                              {render_row(data.pOSM, 30)}
+                              {render_row(data.channel, 30)}
+                              {render_row(data.durationFrom, 20)}
+                              {render_row(data.durationTo, 20)}
                               {render_row(data.dateuploaded, 20)}
                               {render_row(data.uploadedBy, 20)}
-                              {render_row(data.vacant, 20)}
-                              {render_row(data.dayOff, 20)}
-                              {render_row(data.diserSchedule, 50)}
-                              {render_row(data.diserStatus, 20)}
-                              {render_row(data.totalHours, 20)}
-                              {render_row(data.totalDays, 20)}
-                              {render_row(data.timeIN, 20)}
-                              {render_row(data.timeOUT, 20)}
+                              {render_row(data.check1, 10)}
+                              {render_row(data.check2, 10)}
+                              {render_row(data.check3, 10)}
+                              {render_row(data.check4, 10)}
+                              {render_row(data.check5, 10)}
+                              {render_row(data.tDSName, 50)}
+                              {render_row(data.employeeID, 20)}
+                              {render_row(data.activity, 50)}
+                              {render_row(data.manager, 50)}
+                              {render_row(data.storeClass, 20)}
+                              {render_row(data.tDSGroup, 20)}
+                              {render_row(data.tL1, 50)}
+                              {render_row(data.tL2, 50)}
+                              {render_row(data.area, 30)}
+                              {render_row(data.city, 30)}
+                              {render_row(data.region, 30)}
+                              {render_row(data.position, 20)}
+                              {render_row(data.points, 20)}
+                              {render_row(data.typeOfEP, 20)}
+                              {render_row(data.correctLocationUpload, 30)}
+                              {render_row(data.typeOfActivity, 30)}
+                              {render_row(data.groupID, 20)}
+                              {render_row(data.soldStreet, 50)}
+                              {render_row(data.channelMerch, 30)}
+                              {render_row(data.ePSource, 20)}
                             </tr>
                           );
                         })}
@@ -604,6 +841,7 @@ const P3_4_EXECUTION_PLANNER_INDEX = ({ set_page_display }) => {
         {/* - PAGINATION */}
       </div>
       {is_get_EP_loading ? RENDER_LOADING_MODAL() : null}
+      {show_push_EP_alert ? RENDER_PUSH_MODAL() : null}
     </React.Fragment>
   );
 };

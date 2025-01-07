@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { Oval } from "react-loader-spinner";
 import { db } from "../../../../../../assets/scripts/firebase";
-import { get, ref } from "firebase/database";
+import { set, ref } from "firebase/database";
 import { FaAnglesRight, FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import { MdSearch } from "react-icons/md";
 import {
@@ -198,6 +198,115 @@ const P3_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
     set_refresh_md_list((prev) => !prev);
   };
   // - PAGINATION PROCESS ========================================
+  // + PUSH TO CLOUD METHOD MD
+  const [batch_process, set_batch_process] = useState("");
+  const push_to_cloud_md = async (
+    data,
+    batch_size = 1000,
+    delay = 500,
+    abort_controller
+  ) => {
+    set_is_get_MD_loading(true);
+    set_show_push_MD_alert(true);
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    try {
+      const process_batch = async (batch) => {
+        const promises = batch.map(async (item) => {
+          // Check if the operation is cancelled
+          if (abort_controller.signal.aborted) {
+            throw new Error("Operation cancelled");
+          }
+
+          const data_ref = ref(
+            db,
+            `/DB2_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA/${item.storecode}/${item.id}`
+          );
+
+          // Set the data (you may need to adapt this to support cancellation)
+          await set(data_ref, {
+            a1_ID: item.id,
+            a2_BenbyID: item.benbyID || "",
+            a3_Storecode: item.storecode || "",
+            a3_Storename: item.storename || "",
+            a4_Region: item.region || "",
+            a5_Agency: item.agency || "",
+            a6_PlannedConversion: item.plannedConversion || "",
+            a7_PlantillaCode: item.plantillaCode || "",
+            a8_PlannedMerchandiserStatus: item.plannedMerchandiserStatus || "",
+            a9_DatabaseCategory: item.databaseCategory || "",
+            b1_MerchandiserFullName: item.merchandiserFullName || "",
+            b2_SSSNumber: item.sSSNumber || "",
+            b3_Dateuploaded: item.dateuploaded || "",
+            b4_UploadedBy: item.uploadedBy || "",
+            b5_Vacant: item.vacant || "",
+            b6_DayOff: item.dayOff || "",
+            b7_DiserSchedule: item.diserSchedule || "",
+            b8_DiserStatus: item.diserStatus || "",
+            b9_TotalHours: item.totalHours || "",
+            c1_TotalDays: item.totalDays || "",
+            c2_TimeIN: item.timeIN || "",
+            c3_TimeOUT: item.timeOUT || "",
+            c4_DeployStatus: 0,
+            c5_DeployStatusDate: "",
+            c6_AttnStatus: 0,
+            z1_LoginStatus: 0,
+          });
+        });
+
+        // Wait for all promises to resolve
+        await Promise.all(promises);
+      };
+
+      for (let i = 0; i < data.length; i += batch_size) {
+        const batch = data.slice(i, i + batch_size);
+
+        // Check cancellation before processing the batch
+        if (abort_controller.signal.aborted) {
+          console.log("Operation cancelled before processing batch.");
+          set_show_push_MD_alert(false);
+          break; // Exit the loop if cancelled
+        }
+
+        await process_batch(batch); // Process the current batch
+
+        console.log(`Processed batch ${Math.floor(i / batch_size) + 1}`);
+        set_batch_process(
+          `Processed Batch : ${Math.floor(i / batch_size) + 1}`
+        );
+
+        // Sleep for the specified delay
+        await sleep(delay);
+      }
+    } catch (error) {
+      if (error.message === "Operation cancelled") {
+        console.log("Push operation was cancelled.");
+      } else {
+        console.error("Error storing data:", error);
+      }
+    } finally {
+      set_is_get_MD_loading(false);
+      set_show_push_MD_alert(false);
+    }
+  };
+
+  // Example usage in your component
+  const [abort_controller, set_abort_controller] = useState(null);
+
+  const handle_push_to_cloud_md = (data) => {
+    const controller = new AbortController();
+    set_abort_controller(controller);
+
+    push_to_cloud_md(data, 1000, 500, controller);
+  };
+
+  const cancel_push_to_cloud_md = () => {
+    if (abort_controller) {
+      abort_controller.abort();
+      set_abort_controller(null); // Reset the controller after aborting
+    }
+  };
+
+  // - PUSH TO CLOUD METHOD MD
 
   const render_thead = (label, column, width) => {
     return (
@@ -306,6 +415,76 @@ const P3_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
     );
   };
 
+  const RENDER_PUSH_MODAL = () => {
+    return (
+      <React.Fragment>
+        <div class={`modal-overlay`}></div>
+        <div
+          class={`modal`}
+          style={{
+            width: "50vh",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              height: "10vh",
+            }}
+            className="content-center"
+          >
+            <Oval
+              visible={true}
+              height="4vh"
+              width="4vh"
+              strokeWidth={10}
+              color="var(--primary-color)"
+              secondaryColor="var(--primary-color-light)"
+              ariaLabel="oval-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+            />
+          </div>
+          <div style={{ color: "var(--text-color)", fontSize: "1.8vh" }}>
+            Transfering MD Data to cloud...
+          </div>
+          <div
+            className="content-center"
+            style={{
+              color: "var(--text-color)",
+              fontSize: "1.8vh",
+              height: "7vh",
+            }}
+          >
+            {batch_process}
+          </div>
+          <div
+            style={{
+              width: "100%",
+              height: "9vh",
+              padding: "2vh",
+            }}
+          >
+            <button
+              className="btn-general btn-red w-100 h-100"
+              style={{
+                borderRadius: "0.4vh",
+                fontSize: "1.6vh",
+                letterSpacing: "0.1vh",
+              }}
+              onClick={cancel_push_to_cloud_md}
+            >
+              CANCEL
+            </button>
+          </div>
+        </div>
+      </React.Fragment>
+    );
+  };
+
   // RETURN ORIGIN
   return (
     <React.Fragment>
@@ -333,6 +512,18 @@ const P3_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
               onClick={() => get_MD()}
             >
               Get from Database
+            </button>
+            <button
+              className="h-100 btn-general btn-green btn-sm"
+              style={{ padding: "0 2vh" }}
+              onClick={() => {
+                handle_push_to_cloud_md(db_md_list);
+              }}
+              disabled={
+                is_get_MD_loading || db_md_list.length === 0 ? true : false
+              }
+            >
+              PUSH to Cloud
             </button>
             <button
               className="h-100 btn-general btn-gray btn-sm"
@@ -398,7 +589,6 @@ const P3_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
                   textAlign: "center",
                   fontSize: "1.2vh",
                   userSelect: "none",
-                  borderRight: "0.1vh solid #fff",
                 }}
               >
                 {render_thead("#", "", 10)}
@@ -604,6 +794,7 @@ const P3_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
         {/* - PAGINATION */}
       </div>
       {is_get_MD_loading ? RENDER_LOADING_MODAL() : null}
+      {show_push_MD_alert ? RENDER_PUSH_MODAL() : null}
     </React.Fragment>
   );
 };

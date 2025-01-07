@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { Oval } from "react-loader-spinner";
 import { db } from "../../../../../../assets/scripts/firebase";
@@ -13,7 +14,7 @@ import {
 } from "react-icons/md";
 import { format_raw_date } from "../../../../../../assets/scripts/functions/format_function";
 
-const P3_1_MCP_INDEX = ({ set_page_display }) => {
+const P3_5_MCL_INDEX = ({ set_page_display }) => {
   const cont_1_ref = useRef(null);
   const cont_2_ref = useRef(null);
 
@@ -33,59 +34,62 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
     }
   };
 
-  // + GET METHOD MCP
-  // + GET METHOD MCP
-  const [abort_controller_get_MCP, set_abort_controller_get_MCP] =
+  // + GET METHOD MERCH DEPLOYMENT
+  const [abort_controller_get_MCL, set_abort_controller_get_MCL] =
     useState(null);
 
-  const [db_mcp_list, set_db_mcp_list] = useState([]);
-  const [is_get_MCP_loading, set_is_get_MCP_loading] = useState(false);
-  const [show_get_MCP_alert, set_show_get_MCP_alert] = useState(false);
-  const [show_push_MCP_alert, set_show_push_MCP_alert] = useState(false);
+  const [db_MCL_list, set_db_MCL_list] = useState([]);
+  const [is_get_MCL_loading, set_is_get_MCL_loading] = useState(false);
+  const [show_get_MCL_alert, set_show_get_MCL_alert] = useState(false);
+  const [show_push_MCL_alert, set_show_push_MCL_alert] = useState(false);
   const [data_exist, set_data_exist] = useState(false);
 
-  const get_MCP = async () => {
-    set_db_mcp_list([]);
+  const get_MCL = async () => {
+    set_db_MCL_list([]);
     const controller = new AbortController();
-    set_abort_controller_get_MCP(controller); // Store the controller for later use
+    set_abort_controller_get_MCL(controller); // Store the controller for later use
 
-    set_is_get_MCP_loading(true);
-    set_show_get_MCP_alert(true);
+    set_is_get_MCL_loading(true);
+    set_show_get_MCL_alert(true);
 
     try {
       const response = await axios.get(
-        "https://benbyextportal.com/home/api/get/GetMCP?Storecode=0&TDScode=0",
+        "https://benbyextportal.com/home/api/get/GetMCL?Brand=0",
         {
-          signal: controller.signal, // Pass the signal to Axios
+          signal: controller.signal,
         }
       );
-      set_db_mcp_list(response.data);
+      const data_with_ids = response.data.map((item) => ({
+        ...item,
+        a0_ID: uuidv4(),
+      }));
+      console.log(data_with_ids);
+      set_db_MCL_list(data_with_ids);
     } catch (error) {
       if (axios.isCancel(error)) {
         console.warn("Request canceled", error.message);
       } else {
-        console.error("Error fetching data:", error); // Handle other errors
+        console.error("Error fetching data:", error);
       }
     } finally {
-      set_is_get_MCP_loading(false);
-      set_show_get_MCP_alert(false);
+      set_is_get_MCL_loading(false);
+      set_show_get_MCL_alert(false);
     }
   };
 
   // Cancel function
-  const cancel_get_MCP = () => {
-    if (abort_controller_get_MCP) {
-      abort_controller_get_MCP.abort(); // Cancel the request
-      set_abort_controller_get_MCP(null); // Reset the controller after aborting
+  const cancel_get_MCL = () => {
+    if (abort_controller_get_MCL) {
+      abort_controller_get_MCL.abort(); // Cancel the request
+      set_abort_controller_get_MCL(null); // Reset the controller after aborting
     }
   };
-  // - GET METHOD MCP
-  // - GET METHOD MCP
+  // - GET METHOD MERCH DEPLOYMENT
 
   // + PAGINATION PROCESS ========================================
-  const [mcp_list, set_mcp_list] = useState([]);
+  const [mcl_list, set_mcl_list] = useState([]);
   const [selected_list_id, set_selected_list_id] = useState("");
-  const [refresh_mcp_list, set_refresh_mcp_list] = useState(false);
+  const [refresh_mcl_list, set_refresh_mcl_list] = useState(false);
   const [total_count, set_total_count] = useState(0);
   const [is_loading, set_is_loading] = useState(false);
   const [search_query, set_search_query] = useState("");
@@ -98,11 +102,11 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
   const max_visible_page = 5;
 
   useEffect(() => {
-    filter_data(db_mcp_list);
-  }, [db_mcp_list, current_page, search_query, refresh_mcp_list, sort_config]);
+    filter_data(db_MCL_list);
+  }, [db_MCL_list, current_page, search_query, refresh_mcl_list, sort_config]);
 
-  const filter_data = (mcp_data) => {
-    const filtered_data = apply_search_filter(mcp_data, search_query);
+  const filter_data = (osa_data) => {
+    const filtered_data = apply_search_filter(osa_data, search_query);
     const filtered_total_count = filtered_data.length;
     set_total_count(filtered_total_count);
     if (sort_config.key) {
@@ -123,28 +127,18 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
       ...item,
       index: start_index + index + 1,
     }));
-    set_mcp_list(indexed_data);
+    set_mcl_list(indexed_data);
   };
 
   const apply_search_filter = (data, query) => {
     const fields_to_search = [
-      "id",
-      "tDSName",
-      "soldCode",
-      "soldName",
-      "chain",
-      "tDSCategory",
-      "supervisor",
-      "week",
+      "matcode",
+      "brand",
+      "category",
       "dateuploaded",
-      "tDSCode",
-      "rangeFrom",
-      "rangeTo",
-      "soldToStreet",
-      "city",
-      "area",
-      "region",
-      "channel",
+      "groupName",
+      "sKUName",
+      "activity",
     ];
     return data.filter((item) => {
       const search_by_text = fields_to_search.some((field) => {
@@ -201,19 +195,19 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
       direction = "desc";
     }
     set_sort_config({ key, direction });
-    set_refresh_mcp_list((prev) => !prev);
+    set_refresh_mcl_list((prev) => !prev);
   };
   // - PAGINATION PROCESS ========================================
-  // + PUSH TO CLOUD METHOD MCP
+  // + PUSH TO CLOUD METHOD MCL
   const [batch_process, set_batch_process] = useState("");
-  const push_to_cloud_mcp = async (
+  const push_to_cloud_mcl = async (
     data,
     batch_size = 1000,
     delay = 500,
     abort_controller
   ) => {
-    set_is_get_MCP_loading(true);
-    set_show_push_MCP_alert(true);
+    set_is_get_MCL_loading(true);
+    set_show_push_MCL_alert(true);
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     try {
       const process_batch = async (batch) => {
@@ -225,39 +219,22 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
 
           const data_ref = ref(
             db,
-            `/DB2_BENBY_MERCH_APP/TBL_MCP_1/DATA/${item.tDSCode}/${item.id}`
+            `/DB2_BENBY_MERCH_APP/TBL_MCL/DATA/${item.matcode}`
           );
 
-          // Set the data (you may need to adapt this to support cancellation)
           await set(data_ref, {
-            a1_ID: parseInt(item.id),
-            a2_TDSName: item.tDSName || "",
-            a3_SoldCode: item.soldCode || "",
-            a4_SoldName: item.soldName || "",
-            a5_Chain: item.chain || "",
-            a6_TDSCategory: item.tDSCategory || "",
-            a7_Supervisor: item.supervisor || "",
-            a8_Week: item.week || "",
-            a9_PlanVisit: format_raw_date(item.planVisit, "/") || "",
-            b1_Dateuploaded: format_raw_date(item.dateuploaded, "/") || "",
-            b2_UploadedBy: item.uploadedBy || "",
-            b3_ActualDateVisited: item.actualDateVisited || "",
-            b4_TDSCode: item.tDSCode || "",
-            b5_Frequency: item.frequency || "",
-            b6_Period: item.period || "",
-            b7_Manager: item.manager || "",
-            b8_login: item.login || "",
-            b9_RangeFrom: format_raw_date(item.rangeFrom, "/") || "",
-            c1_RangeTo: format_raw_date(item.rangeTo, "/") || "",
-            c2_SoldToStreet: item.soldToStreet || "",
-            c3_City: item.city || "",
-            c4_Area: item.area || "",
-            c5_Region: item.region || "",
-            c6_StoreClass: item.storeClass || "",
-            c7_Channel: item.channel || "",
-            z1_md_status: 0,
-            z2_osa_status: 0,
-            z3_ep_status: 0,
+            a1_Matcode: item.matcode,
+            a2_GroupName: item.groupName || "",
+            a3_Brand: item.brand || "",
+            a4_SubBrand: item.subBrand || "",
+            a5_SKUName: item.sKUName || "",
+            a6_Dateuploaded: format_raw_date(item.dateuploaded) || "",
+            a7_UploadedBy: item.uploadedBy || "",
+            a8_Status: parseInt(item.status) || 0,
+            a9_ArrangeBy: item.arrangeBy || "",
+            b1_ForAvailable: parseInt(item.forAvailable) || 0,
+            b2_ForOutofStock: parseInt(item.forOutofStock) || 0,
+            b3_Category: item.category || "",
           });
         });
 
@@ -271,16 +248,16 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
         // Check cancellation before processing the batch
         if (abort_controller.signal.aborted) {
           console.log("Operation cancelled before processing batch.");
-          set_show_push_MCP_alert(false);
+          set_show_push_MCL_alert(false);
           break; // Exit the loop if cancelled
         }
 
         await process_batch(batch); // Process the current batch
 
+        console.log(`Processed batch ${Math.floor(i / batch_size) + 1}`);
         set_batch_process(
           `Processed Batch : ${Math.floor(i / batch_size) + 1}`
         );
-        console.log(`Processed batch ${Math.floor(i / batch_size) + 1}`);
 
         // Sleep for the specified delay
         await sleep(delay);
@@ -292,29 +269,29 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
         console.error("Error storing data:", error);
       }
     } finally {
-      set_is_get_MCP_loading(false);
-      set_show_push_MCP_alert(false);
+      set_is_get_MCL_loading(false);
+      set_show_push_MCL_alert(false);
     }
   };
 
   // Example usage in your component
   const [abort_controller, set_abort_controller] = useState(null);
 
-  const handle_push_to_cloud_mcp = (mcp_data) => {
+  const handle_push_to_cloud_mcl = (data) => {
     const controller = new AbortController();
     set_abort_controller(controller);
 
-    push_to_cloud_mcp(mcp_data, 1000, 500, controller);
+    push_to_cloud_mcl(data, 1000, 500, controller);
   };
 
-  const cancel_push_to_cloud_mcp = () => {
+  const cancel_push_to_cloud_mcl = () => {
     if (abort_controller) {
       abort_controller.abort();
       set_abort_controller(null); // Reset the controller after aborting
     }
   };
 
-  // - PUSH TO CLOUD METHOD MCP
+  // - PUSH TO CLOUD METHOD MCL
 
   const render_thead = (label, column, width) => {
     return (
@@ -397,7 +374,7 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
             />
           </div>
           <div style={{ color: "var(--text-color)", fontSize: "1.8vh" }}>
-            Fetching MCP Data from database...
+            Fetching MCL Data from database...
           </div>
           <div
             style={{
@@ -413,7 +390,7 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
                 fontSize: "1.6vh",
                 letterSpacing: "0.1vh",
               }}
-              onClick={cancel_get_MCP}
+              onClick={cancel_get_MCL}
             >
               CANCEL
             </button>
@@ -457,7 +434,7 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
             />
           </div>
           <div style={{ color: "var(--text-color)", fontSize: "1.8vh" }}>
-            Transfering MCP Data to cloud...
+            Transfering MCL Data to cloud...
           </div>
           <div
             className="content-center"
@@ -483,7 +460,7 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
                 fontSize: "1.6vh",
                 letterSpacing: "0.1vh",
               }}
-              onClick={cancel_push_to_cloud_mcp}
+              onClick={cancel_push_to_cloud_mcl}
             >
               CANCEL
             </button>
@@ -509,7 +486,7 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
           <div className="content-center" style={{ width: "4vh" }}>
             <FaAnglesRight style={{ fontSize: "1.2vh" }} />
           </div>
-          <div>MCP</div>
+          <div>MCL (Products)</div>
           <div
             className="h-100 content-center"
             style={{ position: "absolute", right: "0", gap: "1vh" }}
@@ -517,18 +494,18 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
             <button
               className="h-100 btn-general btn-green btn-sm"
               style={{ padding: "0 2vh" }}
-              onClick={() => get_MCP()}
+              onClick={() => get_MCL()}
             >
-              GET from Database
+              Get from Database
             </button>
             <button
               className="h-100 btn-general btn-green btn-sm"
               style={{ padding: "0 2vh" }}
               onClick={() => {
-                handle_push_to_cloud_mcp(db_mcp_list);
+                handle_push_to_cloud_mcl(db_MCL_list);
               }}
               disabled={
-                is_get_MCP_loading || db_mcp_list.length === 0 ? true : false
+                is_get_MCL_loading || db_MCL_list.length === 0 ? true : false
               }
             >
               PUSH to Cloud
@@ -599,30 +576,19 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
                   userSelect: "none",
                 }}
               >
-                {render_thead("#", "", "10")}
-                {render_thead("ID", "id", "15")}
-                {render_thead("TDS NAME", "tDSName", "40")}
-                {render_thead("SOLD CODE", "soldCode", "20")}
-                {render_thead("SOLD NAME", "soldName", "50")}
-                {render_thead("CHAIN", "chain", "30")}
-                {render_thead("TDS CATEGORY", "tDSCategory", "20")}
-                {render_thead("SUPERVISOR", "supervisor", "40")}
-                {render_thead("WEEK", "week", "20")}
-                {render_thead("PLAN VISIT", "planVisit", "20")}
-                {render_thead("DATE UPLOADED", "dateuploaded", "20")}
-                {render_thead("UPLOADED BY", "uploadedBy", "20")}
-                {render_thead("TDS CODE", "tDSCode", "20")}
-                {render_thead("FREQUENCY", "frequency", "20")}
-                {render_thead("PERIOD", "period", "20")}
-                {render_thead("MANAGER", "manager", "40")}
-                {render_thead("RANGE FROM", "rangeFrom", "20")}
-                {render_thead("RANGE TO", "rangeTo", "20")}
-                {render_thead("SOLD TO STREET", "soldToStreet", "50")}
-                {render_thead("CITY", "city", "30")}
-                {render_thead("AREA", "area", "30")}
-                {render_thead("REGION", "region", "30")}
-                {render_thead("STORE CLASS", "storeClass", "20")}
-                {render_thead("CHANNEL", "channel", "20")}
+                {render_thead("#", "", 10)}
+                {render_thead("MAT CODE", "matcode", 20)}
+                {render_thead("GROUP NAME", "groupName", 20)}
+                {render_thead("BRAND", "brand", 30)}
+                {render_thead("SUB BRAND", "subBrand", 30)}
+                {render_thead("SKU NAME", "sKUName", 50)}
+                {render_thead("DATE UPLOADED", "dateuploaded", 20)}
+                {render_thead("UPLOADED BY", "uploadedBy", 20)}
+                {render_thead("STATUS", "status", 20)}
+                {render_thead("ARRANGE BY", "arrangeBy", 20)}
+                {render_thead("FOR AVAILABLE", "forAvailable", 20)}
+                {render_thead("FOR OUT OF STOCK", "forOutofStock", 20)}
+                {render_thead("CATEGORY", "category", 20)}
               </tr>
             </table>
           </div>
@@ -669,9 +635,9 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
                 ) : null}
                 {!is_loading ? (
                   <React.Fragment>
-                    {mcp_list.length !== 0 ? (
+                    {mcl_list.length !== 0 ? (
                       <React.Fragment>
-                        {mcp_list.map((data) => {
+                        {mcl_list.map((data) => {
                           return (
                             <tr
                               style={{
@@ -680,40 +646,31 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
                                 height: "4vh",
                               }}
                               className={`${
-                                selected_list_id === data.id ? "selected" : ""
+                                selected_list_id === data.a0_ID
+                                  ? "selected"
+                                  : ""
                               }`}
-                              onClick={() => set_selected_list_id(data.id)}
+                              onClick={() => set_selected_list_id(data.a0_ID)}
                             >
                               {render_row(data.index, 10)}
-                              {render_row(data.id, 15)}
-                              {render_row(data.tDSName, 40)}
-                              {render_row(data.soldCode, 20)}
-                              {render_row(data.soldName, 50)}
-                              {render_row(data.chain, 30)}
-                              {render_row(data.tDSCategory, 20)}
-                              {render_row(data.supervisor, 40)}
-                              {render_row(data.week, 20)}
-                              {render_row(data.planVisit, 20)}
+                              {render_row(data.matcode, 20)}
+                              {render_row(data.groupName, 20)}
+                              {render_row(data.brand, 30)}
+                              {render_row(data.subBrand, 30)}
+                              {render_row(data.sKUName, 50)}
                               {render_row(data.dateuploaded, 20)}
                               {render_row(data.uploadedBy, 20)}
-                              {render_row(data.tDSCode, 20)}
-                              {render_row(data.frequency, 20)}
-                              {render_row(data.period, 20)}
-                              {render_row(data.manager, 40)}
-                              {render_row(data.rangeFrom, 20)}
-                              {render_row(data.rangeTo, 20)}
-                              {render_row(data.soldToStreet, 50)}
-                              {render_row(data.city, 30)}
-                              {render_row(data.area, 30)}
-                              {render_row(data.region, 30)}
-                              {render_row(data.storeClass, 20)}
-                              {render_row(data.channel, 20)}
+                              {render_row(data.status, 20)}
+                              {render_row(data.arrangeBy, 20)}
+                              {render_row(data.forAvailable, 20)}
+                              {render_row(data.forOutofStock, 20)}
+                              {render_row(data.category, 20)}
                             </tr>
                           );
                         })}
                       </React.Fragment>
                     ) : null}
-                    {mcp_list.length === 0 ? (
+                    {mcl_list.length === 0 ? (
                       <React.Fragment>
                         <tr style={{ height: "70vh" }}>
                           <td style={{ width: "100vw" }}>
@@ -733,7 +690,7 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
         {/* - TABLE SECTION */}
         {/* + PAGINATION */}
         <div className="w-100" style={{ height: "7vh" }}>
-          {mcp_list.length !== 0 ? (
+          {mcl_list.length !== 0 ? (
             <React.Fragment>
               <div
                 className="pg-container-fix"
@@ -797,10 +754,10 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
         </div>
         {/* - PAGINATION */}
       </div>
-      {is_get_MCP_loading ? RENDER_LOADING_MODAL() : null}
-      {show_push_MCP_alert ? RENDER_PUSH_MODAL() : null}
+      {is_get_MCL_loading ? RENDER_LOADING_MODAL() : null}
+      {show_push_MCL_alert ? RENDER_PUSH_MODAL() : null}
     </React.Fragment>
   );
 };
 
-export default P3_1_MCP_INDEX;
+export default P3_5_MCL_INDEX;
