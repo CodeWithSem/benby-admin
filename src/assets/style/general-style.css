@@ -165,3 +165,11 @@
 .btn-general.btn-gray:hover {
   background: #858585;
 }
+
+.select-general {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  border: 0.1vh solid var(--border-color-light);
+}

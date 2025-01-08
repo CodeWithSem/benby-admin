@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import C2_1_SIDEBAR_INDEX from "./C2_1_SIDEBAR/C2_1_SIDEBAR_INDEX";
 import P2_CLOUD_MANAGEMENT_INDEX from "./C2_2_PAGES/P2_CLOUD_MANAGEMENT/P2_CLOUD_MANAGEMENT_INDEX";
 import P3_SYNC_DATABASE from "./C2_2_PAGES/P3_SYNC_DATABASE/P3_SYNC_DATABASE";
+import P4_SCHEDULING from "./C2_2_PAGES/P4_SCHEDULING/P4_SCHEDULING";
 import P5_MAINTENANCE_INDEX from "./C2_2_PAGES/P5_MAINTENANCE/P5_MAINTENANCE_INDEX";
 
 const C2_ADMIN_MODULE_INDEX = () => {
@@ -18,6 +19,8 @@ const C2_ADMIN_MODULE_INDEX = () => {
       return <P2_CLOUD_MANAGEMENT_INDEX />;
     } else if (active_page_label === "Sync Database") {
       return <P3_SYNC_DATABASE />;
+    } else if (active_page_label === "Scheduling") {
+      return <P4_SCHEDULING />;
     } else if (active_page_label === "Maintenance") {
       return <P5_MAINTENANCE_INDEX />;
     }

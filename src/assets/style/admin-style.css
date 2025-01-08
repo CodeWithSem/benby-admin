@@ -41,6 +41,21 @@
   box-shadow: 0 0 0 0.2vh rgba(0, 0, 0, 0.14);
 }
 
+.admin-sched-card {
+  position: relative;
+  height: 42vh;
+  background: #fff;
+  border-radius: 0.7vh;
+  border: 0.1vh solid var(--border-color-light);
+  transition: box-shadow 0.14s ease;
+  user-select: none;
+  color: var(--text-color);
+}
+
+.admin-sched-card:hover {
+  box-shadow: 0 0 0 0.2vh rgba(0, 0, 0, 0.14);
+}
+
 .converted-table > thead > tr > th,
 .converted-table > tbody > tr > td > input {
   color: var(--text-color);

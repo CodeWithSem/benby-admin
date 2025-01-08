@@ -35,7 +35,7 @@ const P3_8_TDS_TAGGING_INDEX = ({ set_page_display }) => {
   };
 
   // + GET METHOD MERCH DEPLOYMENT
-  const [abort_controller_get_MCP, set_abort_controller_get_MCP] =
+  const [abort_controller_get_TDS, set_abort_controller_get_TDS] =
     useState(null);
 
   const [db_tds_list, set_db_tds_list] = useState([]);
@@ -44,10 +44,10 @@ const P3_8_TDS_TAGGING_INDEX = ({ set_page_display }) => {
   const [show_push_tds_alert, set_show_push_tds_alert] = useState(false);
   const [data_exist, set_data_exist] = useState(false);
 
-  const get_MCP = async () => {
+  const get_TDS = async () => {
     set_db_tds_list([]);
     const controller = new AbortController();
-    set_abort_controller_get_MCP(controller); // Store the controller for later use
+    set_abort_controller_get_TDS(controller); // Store the controller for later use
 
     set_is_get_tds_loading(true);
     set_show_get_tds_alert(true);
@@ -78,10 +78,10 @@ const P3_8_TDS_TAGGING_INDEX = ({ set_page_display }) => {
   };
 
   // Cancel function
-  const cancel_get_MCP = () => {
-    if (abort_controller_get_MCP) {
-      abort_controller_get_MCP.abort(); // Cancel the request
-      set_abort_controller_get_MCP(null); // Reset the controller after aborting
+  const cancel_get_TDS = () => {
+    if (abort_controller_get_TDS) {
+      abort_controller_get_TDS.abort(); // Cancel the request
+      set_abort_controller_get_TDS(null); // Reset the controller after aborting
     }
   };
   // - GET METHOD MERCH DEPLOYMENT
@@ -432,7 +432,77 @@ const P3_8_TDS_TAGGING_INDEX = ({ set_page_display }) => {
                 fontSize: "1.6vh",
                 letterSpacing: "0.1vh",
               }}
-              onClick={cancel_get_MCP}
+              onClick={cancel_get_TDS}
+            >
+              CANCEL
+            </button>
+          </div>
+        </div>
+      </React.Fragment>
+    );
+  };
+
+  const RENDER_PUSH_MODAL = () => {
+    return (
+      <React.Fragment>
+        <div class={`modal-overlay`}></div>
+        <div
+          class={`modal`}
+          style={{
+            width: "50vh",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              height: "10vh",
+            }}
+            className="content-center"
+          >
+            <Oval
+              visible={true}
+              height="4vh"
+              width="4vh"
+              strokeWidth={10}
+              color="var(--primary-color)"
+              secondaryColor="var(--primary-color-light)"
+              ariaLabel="oval-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+            />
+          </div>
+          <div style={{ color: "var(--text-color)", fontSize: "1.8vh" }}>
+            Transfering TDS Data to cloud...
+          </div>
+          <div
+            className="content-center"
+            style={{
+              color: "var(--text-color)",
+              fontSize: "1.8vh",
+              height: "7vh",
+            }}
+          >
+            {batch_process}
+          </div>
+          <div
+            style={{
+              width: "100%",
+              height: "9vh",
+              padding: "2vh",
+            }}
+          >
+            <button
+              className="btn-general btn-red w-100 h-100"
+              style={{
+                borderRadius: "0.4vh",
+                fontSize: "1.6vh",
+                letterSpacing: "0.1vh",
+              }}
+              onClick={cancel_push_to_cloud}
             >
               CANCEL
             </button>
@@ -466,9 +536,21 @@ const P3_8_TDS_TAGGING_INDEX = ({ set_page_display }) => {
             <button
               className="h-100 btn-general btn-green btn-sm"
               style={{ padding: "0 2vh" }}
-              onClick={() => get_MCP()}
+              onClick={() => get_TDS()}
             >
               Get from Database
+            </button>
+            <button
+              className="h-100 btn-general btn-green btn-sm"
+              style={{ padding: "0 2vh" }}
+              onClick={() => {
+                handle_push_to_cloud(db_tds_list);
+              }}
+              disabled={
+                is_get_tds_loading || db_tds_list.length === 0 ? true : false
+              }
+            >
+              PUSH to Cloud
             </button>
             <button
               className="h-100 btn-general btn-gray btn-sm"
@@ -704,6 +786,7 @@ const P3_8_TDS_TAGGING_INDEX = ({ set_page_display }) => {
         {/* - PAGINATION */}
       </div>
       {is_get_tds_loading ? RENDER_LOADING_MODAL() : null}
+      {show_push_tds_alert ? RENDER_PUSH_MODAL() : null}
     </React.Fragment>
   );
 };
