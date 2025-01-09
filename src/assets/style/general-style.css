@@ -144,6 +144,12 @@
   background: #e44545;
 }
 
+.btn-general.btn-red:disabled {
+  border: 0.1vh solid #72060631;
+  background: #da383863;
+  cursor: not-allowed;
+}
+
 .btn-general.btn-blue {
   color: #fff;
   border: 0.1vh solid #09437a;
@@ -172,4 +178,12 @@
   height: 100%;
   appearance: none;
   border: 0.1vh solid var(--border-color-light);
+  border-radius: 0.4vh;
+}
+
+.select-general > select {
+  appearance: none;
+  border: none;
+  border-radius: 0.4vh;
+  color: var(--text-color);
 }

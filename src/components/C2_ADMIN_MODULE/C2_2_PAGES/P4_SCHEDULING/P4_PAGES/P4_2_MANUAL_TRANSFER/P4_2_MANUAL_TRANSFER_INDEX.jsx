@@ -11,152 +11,24 @@ import {
   format_date,
 } from "../../../../../../assets/scripts/functions/format_function";
 
-const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
-  const current_data = new Date();
+const P4_2_MANUAL_TRANSFER_INDEX = ({ set_page_display }) => {
+  const [selected_date, set_selected_date] = useState("");
   const [start_job, set_start_job] = useState(false);
   const [job_status, set_job_status] = useState(0);
 
-  const get_yesterday = () => {
-    const yesterday = new Date(current_data);
-    yesterday.setDate(current_data.getDate() - 1);
-
-    return format_raw_date(yesterday, "/");
-  };
-
-  // + START AND END TIME
-  const [schedule_start_time, set_schedule_start_time] = useState(0);
-  const [schedule_end_time, set_schedule_end_time] = useState(0);
-  const get_schedule_time = () => {
-    const data_ref_start_time = ref(db, `/DB1_BENBY_MERCH_APP/TBL_SCHEDULE`);
-
-    onValue(
-      data_ref_start_time,
-      (snapshot) => {
-        const time_data = snapshot.val();
-        set_schedule_start_time(time_data.a1_START_TIME);
-        set_schedule_end_time(time_data.a2_END_TIME);
-      },
-      (error) => {
-        console.error("Error checking data:", error);
-      }
-    );
-  };
-
-  useEffect(() => {
-    get_schedule_time();
-  }, []);
-
-  const handle_start_time = async (value) => {
-    try {
-      await update(ref(db, `/DB1_BENBY_MERCH_APP/TBL_SCHEDULE`), {
-        a1_START_TIME: parseInt(value),
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const handle_end_time = async (value) => {
-    try {
-      await update(ref(db, `/DB1_BENBY_MERCH_APP/TBL_SCHEDULE`), {
-        a2_END_TIME: parseInt(value),
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // - START AND END TIME
-
-  // + TIME VALIDATION
-  const [process_start, set_process_start] = useState(true);
-  const [progress, set_progress] = useState(0); // 0 = Not Done || 1 = Processing || 2 = Done
-  const [is_valid, set_is_valid] = useState(false);
-  const [start_time, setstart_time] = useState(0);
-  const [end_time, setend_time] = useState(0);
-
-  const [osa_POST_DATA, set_osa_POST_DATA] = useState([]);
-  const [md_history_POST_DATA, set_md_history_POST_DATA] = useState([]);
-
-  // Function to validate time range
-  const validate_time_range = (start_time, end_time) => {
-    const currentTime = new Date();
-    const currentHours = currentTime.getHours();
-    const currentMinutes = currentTime.getMinutes();
-    const start = parseInt(start_time, 10);
-    const end = parseInt(end_time, 10);
-    if (currentHours > end || (currentHours === end && currentMinutes > 0)) {
-      set_is_valid(false);
-      set_progress(0);
-      console.log("N/A");
-    } else if (currentHours < start) {
-      // Current time is out of range
-      console.log("Current time is out of range");
-      set_is_valid(false);
-      set_progress(0);
-    } else {
-      // Current time is in range
-      console.log("Current time is in range");
-      set_is_valid(true);
-      get_schedule_date();
-    }
-  };
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      if (!process_start) {
-        validate_time_range(schedule_start_time, schedule_end_time);
-      }
-    }, 5000);
-    return () => clearInterval(intervalId);
-  }, [schedule_start_time, schedule_end_time, process_start]);
-
-  const start_post_process = () => {
-    set_start_job(true);
-    set_process_start(false);
-    validate_time_range(schedule_start_time, schedule_end_time);
-  };
-
-  const cancel_post_process = () => {
-    set_process_start(true);
-    set_start_job(false);
-    cancel_post_api_osa();
-    set_page_display("");
-  };
-  // - TIME VALIDATION
-
-  // + GET SCHEDULE DATE
-  const get_schedule_date = async () => {
-    const date_update = new Date();
-    try {
-      const response = await get(
-        ref(db, `/DB1_BENBY_MERCH_APP/TBL_SCHEDULE/b1_UPDATE_DATE`)
-      );
-      const data = response.val();
-      if (data === format_raw_date(date_update, "/")) {
-        // Job is done
-        console.log("JOB DONE!");
-        set_progress(2);
-        set_process_start(false);
-      } else {
-        // Job is processing
-        console.log("JOB PROCESSING!");
-        set_progress(1);
-        set_process_start(true);
-        fetch_data_osa(); // this is the 1ST JOB
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  // - GET SCHEDULE DATE
-
-  // + JOB PROCESS ===============================================================================================
   // + GET OSA
   const [osa_list, set_osa_list] = useState([]);
   const [osa_length, set_osa_length] = useState(0);
   const [osa_pushed_length, set_osa_pushed_length] = useState(0);
 
+  const proceed_manual_job = () => {
+    if (selected_date !== "") {
+      fetch_data_osa();
+    }
+  };
+
   const fetch_data_osa = async () => {
+    set_start_job(true);
     set_job_status(0);
     set_osa_length(0);
     set_osa_pushed_length(0);
@@ -207,14 +79,14 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
           (item) =>
             item.a5_Dateupdated &&
             item.a6_UpdatedBy &&
-            item.a5_Dateupdated === get_yesterday()
+            item.a5_Dateupdated === selected_date
         ).length
       );
       const osa_POST_DATA = products.filter(
         (item) =>
           item.a5_Dateupdated &&
           item.a6_UpdatedBy &&
-          item.a5_Dateupdated === get_yesterday()
+          item.a5_Dateupdated === selected_date
       );
       fetch_data_md_history(osa_POST_DATA);
     }
@@ -263,10 +135,10 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
       console.error("Error fetching data:", error);
     } finally {
       set_md_history_length(
-        md_list.filter((item) => item.b1_datetoday === get_yesterday()).length
+        md_list.filter((item) => item.b1_datetoday === selected_date).length
       );
       const md_history_POST_DATA = md_list.filter(
-        (item) => item.b1_datetoday === get_yesterday()
+        (item) => item.b1_datetoday === selected_date
       );
 
       fetch_data_ep_history(osa_POST_DATA, md_history_POST_DATA);
@@ -287,7 +159,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
       const data_array_ep_history = Object.values(data);
 
       const ep_history_POST_DATA = data_array_ep_history.filter(
-        (item) => item.a2_Dateupdated === get_yesterday()
+        (item) => item.a2_Dateupdated === selected_date
       );
       set_ep_history_length(ep_history_POST_DATA.length);
 
@@ -500,8 +372,8 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
     } catch (error) {
       console.error("Error processing MD History:", error);
     } finally {
+      set_start_job(false);
       set_job_status(3);
-      update_schedule_date();
     }
   };
   // - API POST EP HISTORY
@@ -513,21 +385,9 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
     }
   };
 
-  // + UPDATE SCHEDULE DATE
-  const update_schedule_date = async () => {
-    const date_update = new Date();
-    try {
-      await update(ref(db, `/DB1_BENBY_MERCH_APP/TBL_SCHEDULE`), {
-        b1_UPDATE_DATE: format_raw_date(date_update, "/"),
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      set_process_start(false);
-      set_progress(2);
-    }
+  const cancel_post_process = () => {
+    set_page_display("");
   };
-  // - UPDATE SCHEDULE DATE
   // - JOB PROCESS ===============================================================================================
 
   // RETURN ORIGIN
@@ -546,7 +406,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
           <div className="content-center" style={{ width: "4vh" }}>
             <FaAnglesRight style={{ fontSize: "1.2vh" }} />
           </div>
-          <div>Job Scheduling</div>
+          <div>Manual Transfer</div>
           <div
             className="h-100 content-center"
             style={{ position: "absolute", right: "0", gap: "1vh" }}
@@ -611,8 +471,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
                   fontSize: "1.4vh",
                 }}
               >
-                <div style={{ width: "50%" }}>Start Time</div>
-                <div style={{ width: "50%" }}>End Time </div>
+                <div style={{ width: "100%" }}>Start Time</div>
               </div>
               <div
                 className="w-100 content-center"
@@ -623,63 +482,24 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
                   fontSize: "1.4vh",
                 }}
               >
-                <div style={{ width: "50%", height: "100%" }}>
-                  <div className="select-general">
-                    <select
-                      className="w-100 h-100"
-                      style={{ fontSize: "1.6vh", padding: "0 1vh" }}
-                      value={schedule_start_time}
-                      onChange={(e) => handle_start_time(e.target.value)}
-                      aria-label="Start time select"
-                    >
-                      {Array.from({ length: 24 }, (_, i) => (
-                        <option key={i} value={i}>
-                          {i % 12 === 0 ? 12 : i % 12} {i < 12 ? "AM" : "PM"}
-                        </option>
-                      ))}
-                    </select>
-                    <div
-                      className="h-100 content-center"
-                      style={{
-                        position: "absolute",
-                        top: "0",
-                        right: "0",
-                        width: "4vh",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <FaChevronDown style={{ fontSize: "1.2vh" }} />
-                    </div>
-                  </div>
-                </div>
-                <div style={{ width: "50%", height: "100%" }}>
-                  <div className="select-general">
-                    <select
-                      className="w-100 h-100"
-                      style={{ fontSize: "1.6vh", padding: "0 1vh" }}
-                      value={schedule_end_time}
-                      onChange={(e) => handle_end_time(e.target.value)}
-                      aria-label="End time select"
-                    >
-                      {Array.from({ length: 24 }, (_, i) => (
-                        <option key={i} value={i}>
-                          {i % 12 === 0 ? 12 : i % 12} {i < 12 ? "AM" : "PM"}
-                        </option>
-                      ))}
-                    </select>
-                    <div
-                      className="h-100 content-center"
-                      style={{
-                        position: "absolute",
-                        top: "0",
-                        right: "0",
-                        width: "4vh",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <FaChevronDown style={{ fontSize: "1.2vh" }} />
-                    </div>
-                  </div>
+                <div style={{ width: "100%", height: "100%" }}>
+                  <input
+                    className="w-100 h-100"
+                    style={{
+                      padding: "0 1vh",
+                      fontSize: "1.6vh",
+                      border: "0.1vh solid var(--border-color-light)",
+                      borderRadius: "0.4vh",
+                      letterSpacing: "0.1vh",
+                      color: "var(--text-color)",
+                    }}
+                    type="date"
+                    onChange={(e) => {
+                      const date_value = e.target.value;
+                      const date_object = new Date(date_value);
+                      set_selected_date(format_date(date_object, "/"));
+                    }}
+                  />
                 </div>
               </div>
               <div
@@ -778,7 +598,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
                 <button
                   className="btn-general btn-sm btn-green h-100 w-100 content-center"
                   style={{ fontSize: "1.8vh", letterSpacing: "0.2vh" }}
-                  onClick={start_post_process}
+                  onClick={proceed_manual_job}
                   disabled={start_job ? true : false}
                 >
                   {start_job ? (
@@ -1061,4 +881,4 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
   );
 };
 
-export default P4_1_JOB_SCHEDULING_INDEX;
+export default P4_2_MANUAL_TRANSFER_INDEX;

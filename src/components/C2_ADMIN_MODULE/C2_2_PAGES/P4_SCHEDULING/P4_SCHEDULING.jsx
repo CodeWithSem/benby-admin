@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { MdOutlineAccessTime } from "react-icons/md";
+import P4_1_JOB_SCHEDULING_INDEX from "./P4_PAGES/P4_1_JOB_SCHEDULING/P4_1_JOB_SCHEDULING_INDEX";
+import P4_2_MANUAL_TRANSFER_INDEX from "./P4_PAGES/P4_2_MANUAL_TRANSFER/P4_2_MANUAL_TRANSFER_INDEX";
 
 const P4_SCHEDULING = () => {
   const [page_display, set_page_display] = useState("");
@@ -17,7 +19,7 @@ const P4_SCHEDULING = () => {
           {/* + JOB SCHEDULING */}
           <div
             className="admin-card content-center"
-            onClick={() => set_page_display("MCP")}
+            onClick={() => set_page_display("Job Scheduling")}
           >
             <div
               style={{
@@ -47,7 +49,7 @@ const P4_SCHEDULING = () => {
           {/* + MANUAL TRANSFER */}
           <div
             className="admin-card content-center"
-            onClick={() => set_page_display("OSA")}
+            onClick={() => set_page_display("Manual Transfer")}
           >
             <div
               style={{
@@ -75,9 +77,12 @@ const P4_SCHEDULING = () => {
           </div>
           {/* - MANUAL TRANSFER */}
         </div>
-        {/* {page_display === "MCP" ? (
-          <P3_1_MCP_INDEX set_page_display={set_page_display} />
-        ) : null} */}
+        {page_display === "Job Scheduling" ? (
+          <P4_1_JOB_SCHEDULING_INDEX set_page_display={set_page_display} />
+        ) : null}
+        {page_display === "Manual Transfer" ? (
+          <P4_2_MANUAL_TRANSFER_INDEX set_page_display={set_page_display} />
+        ) : null}
       </div>
     </React.Fragment>
   );
