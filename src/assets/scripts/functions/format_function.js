@@ -54,3 +54,8 @@ export function format_raw_date(date_value, format) {
     return `${month}-${day}-${year}`;
   }
 }
+
+export function get_unix_timestamp(date_value) {
+  const current_date = new Date(date_value);
+  return current_date.getTime();
+}

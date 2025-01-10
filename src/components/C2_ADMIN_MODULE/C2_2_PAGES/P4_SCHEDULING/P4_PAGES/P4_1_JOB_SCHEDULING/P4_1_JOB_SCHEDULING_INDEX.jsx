@@ -3,12 +3,13 @@ import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { Oval } from "react-loader-spinner";
 import { db } from "../../../../../../assets/scripts/firebase";
-import { ref, get, onValue, update } from "firebase/database";
+import { ref, set, get, onValue, update } from "firebase/database";
 import { FaAnglesRight, FaChevronDown, FaCheck } from "react-icons/fa6";
 import { MdOutlineAccessTime } from "react-icons/md";
 import {
   format_raw_date,
   format_date,
+  get_unix_timestamp,
 } from "../../../../../../assets/scripts/functions/format_function";
 
 const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
@@ -525,9 +526,34 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
     } finally {
       set_process_start(false);
       set_progress(2);
+      setTimeout(() => create_job_log(), 500);
     }
   };
   // - UPDATE SCHEDULE DATE
+  // + CREATE JOB LOG
+  const create_job_log = async () => {
+    const date_now = new Date();
+    try {
+      await set(
+        ref(
+          db,
+          `/DB1_BENBY_MERCH_APP/TBL_JOB_LOG/${get_unix_timestamp(date_now)}`
+        ),
+        {
+          a1_ID: get_unix_timestamp(date_now),
+          b1_CATEGORY: "JOB SCHEDULE",
+          c1_DATE: get_yesterday(),
+          d1_OSA_HISTORY: osa_pushed_length,
+          d2_MD_HISTORY: md_history_pushed_length,
+          d3_EP_HISTORY: ep_history_pushed_length,
+          e1_STATUS: "COMPLETE",
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // - CREATE JOB LOG
   // - JOB PROCESS ===============================================================================================
 
   // RETURN ORIGIN
