@@ -3,12 +3,13 @@ import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { Oval } from "react-loader-spinner";
 import { db } from "../../../../../../assets/scripts/firebase";
-import { ref, get, onValue, update } from "firebase/database";
+import { ref, get, set } from "firebase/database";
 import { FaAnglesRight, FaChevronDown, FaCheck } from "react-icons/fa6";
 import { MdOutlineAccessTime } from "react-icons/md";
 import {
   format_raw_date,
   format_date,
+  get_unix_timestamp,
 } from "../../../../../../assets/scripts/functions/format_function";
 
 const P4_2_MANUAL_TRANSFER_INDEX = ({ set_page_display }) => {
@@ -188,6 +189,7 @@ const P4_2_MANUAL_TRANSFER_INDEX = ({ set_page_display }) => {
   ) => {
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const date_now = new Date();
+    let osa_total_length = 0;
 
     try {
       for (let i = 0; i < osa_POST_DATA.length; i += batch_size) {
@@ -225,6 +227,7 @@ const P4_2_MANUAL_TRANSFER_INDEX = ({ set_page_display }) => {
                 },
               ]);
               set_osa_pushed_length((prevLength) => prevLength + 1);
+              osa_total_length++;
             }
           } catch (error) {
             if (axios.isCancel(error)) {
@@ -247,6 +250,7 @@ const P4_2_MANUAL_TRANSFER_INDEX = ({ set_page_display }) => {
       post_api_md_history(
         md_history_POST_DATA,
         ep_history_POST_DATA,
+        osa_total_length,
         controller
       );
     }
@@ -256,11 +260,12 @@ const P4_2_MANUAL_TRANSFER_INDEX = ({ set_page_display }) => {
   const post_api_md_history = async (
     md_history_POST_DATA,
     ep_history_POST_DATA,
+    osa_total_length,
     abort_controller
   ) => {
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const date_now = new Date();
-
+    let md_total_length = 0;
     try {
       for (let i = 0; i < md_history_POST_DATA.length; i += batch_size) {
         const batch = md_history_POST_DATA.slice(i, i + batch_size);
@@ -292,6 +297,7 @@ const P4_2_MANUAL_TRANSFER_INDEX = ({ set_page_display }) => {
                 },
               ]);
               set_md_history_pushed_length((prevLength) => prevLength + 1);
+              md_total_length++;
             }
           } catch (error) {
             if (axios.isCancel(error)) {
@@ -311,16 +317,24 @@ const P4_2_MANUAL_TRANSFER_INDEX = ({ set_page_display }) => {
       const controller = new AbortController();
       set_abort_controller(controller);
       set_job_status(2);
-      post_api_ep_history(ep_history_POST_DATA, controller);
+      post_api_ep_history(
+        ep_history_POST_DATA,
+        osa_total_length,
+        md_total_length,
+        controller
+      );
     }
   };
   // - API POST MD HISTORY
   // + API POST EP HISTORY
   const post_api_ep_history = async (
     ep_history_POST_DATA,
+    osa_total_length,
+    md_total_length,
     abort_controller
   ) => {
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    let ep_total_length = 0;
     try {
       for (let i = 0; i < ep_history_POST_DATA.length; i += batch_size) {
         const batch = ep_history_POST_DATA.slice(i, i + batch_size);
@@ -356,6 +370,7 @@ const P4_2_MANUAL_TRANSFER_INDEX = ({ set_page_display }) => {
                 },
               ]);
               set_ep_history_pushed_length((prevLength) => prevLength + 1);
+              ep_total_length++;
             }
           } catch (error) {
             if (axios.isCancel(error)) {
@@ -374,20 +389,47 @@ const P4_2_MANUAL_TRANSFER_INDEX = ({ set_page_display }) => {
     } finally {
       set_start_job(false);
       set_job_status(3);
+      setTimeout(
+        () =>
+          create_job_log(osa_total_length, md_total_length, ep_total_length),
+        500
+      );
     }
   };
   // - API POST EP HISTORY
 
-  const cancel_post_api_osa = () => {
-    if (abort_controller) {
-      abort_controller.abort();
-      set_abort_controller(null); // Reset the controller after aborting
-    }
-  };
-
   const cancel_post_process = () => {
     set_page_display("");
   };
+
+  // + CREATE JOB LOG
+  const create_job_log = async (
+    osa_total_length,
+    md_total_length,
+    ep_total_length
+  ) => {
+    const date_now = new Date();
+    try {
+      await set(
+        ref(
+          db,
+          `/DB1_BENBY_MERCH_APP/TBL_JOB_LOG/${get_unix_timestamp(date_now)}`
+        ),
+        {
+          a1_ID: get_unix_timestamp(date_now),
+          b1_CATEGORY: "MANUAL TRANSFER",
+          c1_DATE: selected_date,
+          d1_OSA_HISTORY: osa_total_length,
+          d2_MD_HISTORY: md_total_length,
+          d3_EP_HISTORY: ep_total_length,
+          e1_STATUS: "COMPLETE",
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // - CREATE JOB LOG
   // - JOB PROCESS ===============================================================================================
 
   // RETURN ORIGIN

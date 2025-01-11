@@ -317,7 +317,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
   ) => {
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const date_now = new Date();
-
+    let osa_total_length = 0;
     try {
       for (let i = 0; i < osa_POST_DATA.length; i += batch_size) {
         const batch = osa_POST_DATA.slice(i, i + batch_size);
@@ -354,6 +354,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
                 },
               ]);
               set_osa_pushed_length((prevLength) => prevLength + 1);
+              osa_total_length++;
             }
           } catch (error) {
             if (axios.isCancel(error)) {
@@ -376,6 +377,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
       post_api_md_history(
         md_history_POST_DATA,
         ep_history_POST_DATA,
+        osa_total_length,
         controller
       );
     }
@@ -385,10 +387,11 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
   const post_api_md_history = async (
     md_history_POST_DATA,
     ep_history_POST_DATA,
+    osa_total_length,
     abort_controller
   ) => {
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-    const date_now = new Date();
+    let md_total_length = 0;
 
     try {
       for (let i = 0; i < md_history_POST_DATA.length; i += batch_size) {
@@ -421,6 +424,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
                 },
               ]);
               set_md_history_pushed_length((prevLength) => prevLength + 1);
+              md_total_length++;
             }
           } catch (error) {
             if (axios.isCancel(error)) {
@@ -440,16 +444,24 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
       const controller = new AbortController();
       set_abort_controller(controller);
       set_job_status(2);
-      post_api_ep_history(ep_history_POST_DATA, controller);
+      post_api_ep_history(
+        ep_history_POST_DATA,
+        osa_total_length,
+        md_total_length,
+        controller
+      );
     }
   };
   // - API POST MD HISTORY
   // + API POST EP HISTORY
   const post_api_ep_history = async (
     ep_history_POST_DATA,
+    osa_total_length,
+    md_total_length,
     abort_controller
   ) => {
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    let ep_total_length = 0;
     try {
       for (let i = 0; i < ep_history_POST_DATA.length; i += batch_size) {
         const batch = ep_history_POST_DATA.slice(i, i + batch_size);
@@ -485,6 +497,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
                 },
               ]);
               set_ep_history_pushed_length((prevLength) => prevLength + 1);
+              ep_total_length++;
             }
           } catch (error) {
             if (axios.isCancel(error)) {
@@ -502,7 +515,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
       console.error("Error processing MD History:", error);
     } finally {
       set_job_status(3);
-      update_schedule_date();
+      update_schedule_date(osa_total_length, md_total_length, ep_total_length);
     }
   };
   // - API POST EP HISTORY
@@ -515,7 +528,11 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
   };
 
   // + UPDATE SCHEDULE DATE
-  const update_schedule_date = async () => {
+  const update_schedule_date = async (
+    osa_total_length,
+    md_total_length,
+    ep_total_length
+  ) => {
     const date_update = new Date();
     try {
       await update(ref(db, `/DB1_BENBY_MERCH_APP/TBL_SCHEDULE`), {
@@ -526,12 +543,20 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
     } finally {
       set_process_start(false);
       set_progress(2);
-      setTimeout(() => create_job_log(), 500);
+      setTimeout(
+        () =>
+          create_job_log(osa_total_length, md_total_length, ep_total_length),
+        500
+      );
     }
   };
   // - UPDATE SCHEDULE DATE
   // + CREATE JOB LOG
-  const create_job_log = async () => {
+  const create_job_log = async (
+    osa_total_length,
+    md_total_length,
+    ep_total_length
+  ) => {
     const date_now = new Date();
     try {
       await set(
@@ -543,9 +568,9 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
           a1_ID: get_unix_timestamp(date_now),
           b1_CATEGORY: "JOB SCHEDULE",
           c1_DATE: get_yesterday(),
-          d1_OSA_HISTORY: osa_pushed_length,
-          d2_MD_HISTORY: md_history_pushed_length,
-          d3_EP_HISTORY: ep_history_pushed_length,
+          d1_OSA_HISTORY: osa_total_length,
+          d2_MD_HISTORY: md_total_length,
+          d3_EP_HISTORY: ep_total_length,
           e1_STATUS: "COMPLETE",
         }
       );

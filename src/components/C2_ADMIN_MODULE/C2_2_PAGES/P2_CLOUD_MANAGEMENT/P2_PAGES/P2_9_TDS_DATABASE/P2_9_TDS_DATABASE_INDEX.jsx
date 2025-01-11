@@ -233,13 +233,13 @@ const P2_9_TDS_DATABASE_INDEX = ({ set_page_display }) => {
             className="h-100 content-center"
             style={{ position: "absolute", right: "0", gap: "1vh" }}
           >
-            <button
+            {/* <button
               className="h-100 btn-general btn-green btn-sm"
               style={{ padding: "0 2vh" }}
               onClick={() => set_page_display("")}
             >
               Export as Excel
-            </button>
+            </button> */}
             <button
               className="h-100 btn-general btn-gray btn-sm"
               style={{ padding: "0 2vh" }}

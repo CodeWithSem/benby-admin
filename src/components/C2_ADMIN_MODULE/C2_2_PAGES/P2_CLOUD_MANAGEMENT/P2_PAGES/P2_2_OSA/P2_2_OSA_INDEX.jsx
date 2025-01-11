@@ -57,7 +57,8 @@ const P2_2_OSA_INDEX = ({ set_page_display }) => {
       set_is_loading(true);
       const osa_date_value = format_date(osa_date, "-");
       const response = await get(
-        ref(db, `/DB2_BENBY_MERCH_APP/TBL_OSA/DATA/${osa_date_value}`)
+        ref(db, `/DB1_BENBY_MERCH_APP/TBL_OSA_1/DATA`)
+        // ref(db, `/DB2_BENBY_MERCH_APP/TBL_OSA/DATA/${osa_date_value}`)
       );
       const data = response.val();
       let osa_data = [];
@@ -264,13 +265,13 @@ const P2_2_OSA_INDEX = ({ set_page_display }) => {
             className="h-100 content-center"
             style={{ position: "absolute", right: "0", gap: "1vh" }}
           >
-            <button
+            {/* <button
               className="h-100 btn-general btn-green btn-sm"
               style={{ padding: "0 2vh" }}
               onClick={() => set_page_display("")}
             >
               Export as Excel
-            </button>
+            </button> */}
             <button
               className="h-100 btn-general btn-gray btn-sm"
               style={{ padding: "0 2vh" }}
@@ -307,7 +308,7 @@ const P2_2_OSA_INDEX = ({ set_page_display }) => {
               />
             </div>
           </div>
-          <div className="h-100">
+          {/* <div className="h-100">
             <input
               type="date"
               className="h-100 w-100 border-light"
@@ -322,7 +323,7 @@ const P2_2_OSA_INDEX = ({ set_page_display }) => {
               value={osa_date}
               onChange={(e) => set_osa_date(e.target.value)} // Update state on change
             />
-          </div>
+          </div> */}
         </div>
         {/* - SEARCH BAR */}
         {/* + TABLE SECTION */}
