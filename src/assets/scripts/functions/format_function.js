@@ -20,7 +20,6 @@ export function format_time(date_value, format) {
   if (format === "ampm") {
     const hours = customDate.getHours();
     const minutes = customDate.getMinutes();
-    const seconds = customDate.getSeconds();
     const amOrPm = hours >= 12 ? "PM" : "AM";
     const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
     const formattedMinutes = String(minutes).padStart(2, "0");

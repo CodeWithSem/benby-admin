@@ -14,6 +14,7 @@
   --primary-color: #0b8630;
   --primary-color-hover: #13943a;
   --primary-color-light: #0b86301e;
+  --border-color: #acacac;
   --border-color-light: #dadada;
   --text-color: #333333;
   --text-color-light: #727272;
@@ -177,11 +178,27 @@
   width: 100%;
   height: 100%;
   appearance: none;
-  border: 0.1vh solid var(--border-color-light);
+  border: 0.1vh solid var(--border-color);
   border-radius: 0.4vh;
 }
 
 .select-general > select {
+  appearance: none;
+  border: none;
+  border-radius: 0.4vh;
+  color: var(--text-color);
+}
+
+.input-general {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  border: 0.1vh solid var(--border-color);
+  border-radius: 0.4vh;
+}
+
+.input-general > input {
   appearance: none;
   border: none;
   border-radius: 0.4vh;
