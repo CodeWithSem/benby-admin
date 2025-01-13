@@ -120,7 +120,7 @@ const C2_1_SIDEBAR_INDEX = ({ active_page_label, set_active_page_label }) => {
       </div>
 
       {/* Footer */}
-      <div className="sidebar-footer">
+      {/* <div className="sidebar-footer">
         <div className="sidebar-footer-item">
           <div className="sidebar-footer-icon">
             <FaUserCircle style={{ fontSize: "4vh" }} />
@@ -133,7 +133,7 @@ const C2_1_SIDEBAR_INDEX = ({ active_page_label, set_active_page_label }) => {
             <BiLogOut style={{ fontSize: "2.4vh" }} />
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
