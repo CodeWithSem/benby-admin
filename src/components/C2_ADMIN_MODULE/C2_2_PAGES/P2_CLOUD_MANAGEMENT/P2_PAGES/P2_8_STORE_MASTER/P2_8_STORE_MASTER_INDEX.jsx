@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Oval } from "react-loader-spinner";
 import { db } from "../../../../../../assets/scripts/firebase";
-import { get, ref } from "firebase/database";
+import { ref, get, set, remove } from "firebase/database";
 import { FaAnglesRight, FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import { MdSearch } from "react-icons/md";
 import {
@@ -10,8 +10,14 @@ import {
   MdKeyboardDoubleArrowRight,
   MdKeyboardArrowRight,
 } from "react-icons/md";
+import M1_DELETE_FILTER from "./P2_8_MODALS/M1_DELETE_FILTER";
 
 const P2_8_STORE_MASTER_INDEX = ({ set_page_display }) => {
+  const [show_delete_filter_modal, set_show_delete_filter_modal] =
+    useState(false);
+  const [refresh_store_raw_data, set_refresh_store_raw_data] = useState(false);
+
+  // + TABLE SCROLL
   const cont_1_ref = useRef(null);
   const cont_2_ref = useRef(null);
 
@@ -30,7 +36,7 @@ const P2_8_STORE_MASTER_INDEX = ({ set_page_display }) => {
       handle_scroll(cont_2_ref.current, cont_1_ref.current);
     }
   };
-
+  // - TABLE SCROLL
   // + PAGINATION PROCESS ========================================
   const [store_raw_data, set_store_raw_data] = useState([]);
   const [store_list, set_store_list] = useState([]);
@@ -51,11 +57,11 @@ const P2_8_STORE_MASTER_INDEX = ({ set_page_display }) => {
     try {
       set_is_loading(true);
       const response = await get(
-        ref(db, `/DB1_BENBY_MERCH_APP/TBL_STORE_MASTER/DATA`)
+        ref(db, `/DB2_BENBY_MERCH_APP/TBL_STORE_MASTER/DATA`)
       );
       const data = response.val();
-      const data_array_mcl = Object.values(data);
-      set_store_raw_data(data_array_mcl);
+      const data_array_mcl = Object.values(data || []);
+      set_store_raw_data(data_array_mcl || []);
     } catch (error) {
       console.log(error);
     } finally {
@@ -65,7 +71,7 @@ const P2_8_STORE_MASTER_INDEX = ({ set_page_display }) => {
 
   useEffect(() => {
     get_store_raw_data();
-  }, []);
+  }, [refresh_store_raw_data]);
 
   useEffect(() => {
     filter_data(store_raw_data);
@@ -216,6 +222,55 @@ const P2_8_STORE_MASTER_INDEX = ({ set_page_display }) => {
     );
   };
 
+  // + DELETE FILTER
+  const [delete_loading, set_delete_loading] = useState(false);
+
+  const delete_all = async () => {
+    const path = `/DB2_BENBY_MERCH_APP/TBL_STORE_MASTER/DATA`;
+    try {
+      await set(ref(db, path), null);
+      alert("Deletion Success!");
+      set_refresh_store_raw_data((prev) => !prev);
+      set_show_delete_filter_modal(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const delete_by_filter = async (filter_value, filter_condition) => {
+    try {
+      set_delete_loading(true);
+      const snapshot = await get(
+        ref(db, `/DB2_BENBY_MERCH_APP/TBL_STORE_MASTER/DATA`)
+      );
+      const data = snapshot.val();
+      if (data) {
+        for (const child_path of Object.keys(data)) {
+          const info = data[child_path];
+          if (info && filter_condition(info, filter_value)) {
+            await remove(
+              ref(
+                db,
+                `/DB2_BENBY_MERCH_APP/TBL_STORE_MASTER/DATA/${child_path}`
+              )
+            );
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting data:", error);
+    } finally {
+      set_delete_loading(false);
+      alert("Deletion Success!");
+      set_show_delete_filter_modal(false);
+      set_refresh_store_raw_data((prev) => !prev);
+    }
+  };
+
+  const delete_by_cst_code = (filter_value) =>
+    delete_by_filter(filter_value, (info, value) => info.a1_cstCode === value);
+  // - DELETE FILTER
+
   // RETURN ORIGIN
   return (
     <React.Fragment>
@@ -244,6 +299,13 @@ const P2_8_STORE_MASTER_INDEX = ({ set_page_display }) => {
             >
               Export as Excel
             </button> */}
+            <button
+              className="h-100 btn-general btn-red btn-sm"
+              style={{ padding: "0 2vh" }}
+              onClick={() => set_show_delete_filter_modal(true)}
+            >
+              Delete Filter
+            </button>
             <button
               className="h-100 btn-general btn-gray btn-sm"
               style={{ padding: "0 2vh" }}
@@ -482,6 +544,14 @@ const P2_8_STORE_MASTER_INDEX = ({ set_page_display }) => {
         </div>
         {/* - PAGINATION */}
       </div>
+      {show_delete_filter_modal ? (
+        <M1_DELETE_FILTER
+          set_show_delete_filter_modal={set_show_delete_filter_modal}
+          delete_loading={delete_loading}
+          delete_all={delete_all}
+          delete_by_cst_code={delete_by_cst_code}
+        />
+      ) : null}
     </React.Fragment>
   );
 };

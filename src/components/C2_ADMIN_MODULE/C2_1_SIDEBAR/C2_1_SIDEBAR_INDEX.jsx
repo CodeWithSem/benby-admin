@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import logo from "../../../assets/images/benby-logo.png";
 import { MdOutlineAccessTime, MdOutlineCloudSync } from "react-icons/md";
 import { FiDatabase } from "react-icons/fi";
@@ -10,6 +10,22 @@ const C2_1_SIDEBAR_INDEX = ({ active_page_label, set_active_page_label }) => {
   const handle_select_page = (page) => {
     set_active_page_label(page);
   };
+
+  const [show_maintenance, set_show_maintenance] = useState(false);
+  const handle_key_press = (event) => {
+    if (event.altKey && event.ctrlKey && event.key === "PageUp") {
+      set_show_maintenance(true);
+    } else if (event.altKey && event.ctrlKey && event.key === "PageDown") {
+      set_show_maintenance(false);
+    }
+  };
+  useEffect(() => {
+    window.addEventListener("keydown", handle_key_press);
+
+    return () => {
+      window.removeEventListener("keydown", handle_key_press);
+    };
+  }, []);
 
   // RETURN ORIGIN
   return (
@@ -81,20 +97,25 @@ const C2_1_SIDEBAR_INDEX = ({ active_page_label, set_active_page_label }) => {
         </div>
         {/* - Scheduling */}
         {/* + Maintenance */}
-        <div
-          className={`sidebar-item ${
-            active_page_label === "Maintenance" ? "active" : ""
-          }`}
-          onClick={() => handle_select_page("Maintenance")}
-        >
-          <div
-            style={{ height: "5.4vh", width: "5.4vh" }}
-            className="content-center"
-          >
-            <IoSettingsOutline style={{ fontSize: "2.2vh" }} />
-          </div>
-          <div className="sidebar-item-text">Maintenance</div>
-        </div>
+        {show_maintenance ? (
+          <React.Fragment>
+            <div
+              className={`sidebar-item ${
+                active_page_label === "Maintenance" ? "active" : ""
+              }`}
+              onClick={() => handle_select_page("Maintenance")}
+            >
+              <div
+                style={{ height: "5.4vh", width: "5.4vh" }}
+                className="content-center"
+              >
+                <IoSettingsOutline style={{ fontSize: "2.2vh" }} />
+              </div>
+              <div className="sidebar-item-text">Maintenance</div>
+            </div>
+          </React.Fragment>
+        ) : null}
+
         {/* - Maintenance */}
       </div>
 

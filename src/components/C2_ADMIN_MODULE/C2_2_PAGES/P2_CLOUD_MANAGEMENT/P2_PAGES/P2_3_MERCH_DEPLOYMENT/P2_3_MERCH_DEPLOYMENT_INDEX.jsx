@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Oval } from "react-loader-spinner";
 import { db } from "../../../../../../assets/scripts/firebase";
-import { get, ref } from "firebase/database";
+import { ref, set, get, remove } from "firebase/database";
 import { FaAnglesRight, FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import { MdSearch } from "react-icons/md";
 import {
@@ -10,8 +10,14 @@ import {
   MdKeyboardDoubleArrowRight,
   MdKeyboardArrowRight,
 } from "react-icons/md";
+import M1_DELETE_FILTER from "./P2_3_MODALS/M1_DELETE_FILTER";
 
 const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
+  const [show_delete_filter_modal, set_show_delete_filter_modal] =
+    useState(false);
+  const [refresh_md_raw_data, set_refresh_md_raw_data] = useState(false);
+
+  // + TABLE SCROLL
   const cont_1_ref = useRef(null);
   const cont_2_ref = useRef(null);
 
@@ -30,7 +36,7 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
       handle_scroll(cont_2_ref.current, cont_1_ref.current);
     }
   };
-
+  // - TABLE SCROLL
   // + PAGINATION PROCESS ========================================
   const [md_raw_data, set_md_raw_data] = useState([]);
   const [md_list, set_md_list] = useState([]);
@@ -51,16 +57,16 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
     try {
       set_is_loading(true);
       const response = await get(
-        ref(db, `/DB1_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA`)
+        ref(db, `/DB2_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA`)
       );
       const data = response.val();
       let md_data = [];
       if (data) {
-        Object.keys(data).forEach((parentPath) => {
-          const childPaths = data[parentPath];
-          if (childPaths) {
-            Object.keys(childPaths).forEach((childPath) => {
-              const info = childPaths[childPath];
+        Object.keys(data).forEach((parent_path) => {
+          const child_paths = data[parent_path];
+          if (child_paths) {
+            Object.keys(child_paths).forEach((child_path) => {
+              const info = child_paths[child_path];
               if (info) {
                 md_data.push(info);
               }
@@ -78,7 +84,7 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
 
   useEffect(() => {
     get_md_raw_data();
-  }, []);
+  }, [refresh_md_raw_data]);
 
   useEffect(() => {
     filter_data(md_raw_data);
@@ -222,6 +228,63 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
     );
   };
 
+  // + DELETE FILTER
+  const [delete_loading, set_delete_loading] = useState(false);
+
+  const delete_all = async () => {
+    const path = `/DB2_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA`;
+    try {
+      await set(ref(db, path), null);
+      alert("Deletion Success!");
+      set_refresh_md_raw_data((prev) => !prev);
+      set_show_delete_filter_modal(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const delete_by_filter = async (filter_value, filter_condition) => {
+    try {
+      set_delete_loading(true);
+      const snapshot = await get(
+        ref(db, `/DB2_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA`)
+      );
+      const data = snapshot.val();
+      if (data) {
+        for (const parent_path of Object.keys(data)) {
+          const child_paths = data[parent_path];
+          if (child_paths) {
+            for (const child_path of Object.keys(child_paths)) {
+              const info = child_paths[child_path];
+              if (info && filter_condition(info, filter_value)) {
+                await remove(
+                  ref(
+                    db,
+                    `/DB2_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA/${parent_path}/${child_path}`
+                  )
+                );
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting data:", error);
+    } finally {
+      set_delete_loading(false);
+      alert("Deletion Success!");
+      set_show_delete_filter_modal(false);
+      set_refresh_md_raw_data((prev) => !prev);
+    }
+  };
+
+  const delete_by_store_code = (filter_value) =>
+    delete_by_filter(
+      filter_value,
+      (info, value) => info.a3_Storecode === value
+    );
+  // - DELETE FILTER
+
   // RETURN ORIGIN
   return (
     <React.Fragment>
@@ -250,6 +313,13 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
             >
               Export as Excel
             </button> */}
+            <button
+              className="h-100 btn-general btn-red btn-sm"
+              style={{ padding: "0 2vh" }}
+              onClick={() => set_show_delete_filter_modal(true)}
+            >
+              Delete Filter
+            </button>
             <button
               className="h-100 btn-general btn-gray btn-sm"
               style={{ padding: "0 2vh" }}
@@ -521,6 +591,14 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
         </div>
         {/* - PAGINATION */}
       </div>
+      {show_delete_filter_modal ? (
+        <M1_DELETE_FILTER
+          set_show_delete_filter_modal={set_show_delete_filter_modal}
+          delete_loading={delete_loading}
+          delete_all={delete_all}
+          delete_by_store_code={delete_by_store_code}
+        />
+      ) : null}
     </React.Fragment>
   );
 };

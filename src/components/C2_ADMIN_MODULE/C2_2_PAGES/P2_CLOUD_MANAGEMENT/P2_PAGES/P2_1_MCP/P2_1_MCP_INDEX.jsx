@@ -15,6 +15,7 @@ import M1_DELETE_FILTER from "./P2_1_MODALS/M1_DELETE_FILTER";
 const P2_1_MCP_INDEX = ({ set_page_display }) => {
   const [show_delete_filter_modal, set_show_delete_filter_modal] =
     useState(false);
+  const [refresh_mcp_raw_data, set_refresh_mcp_raw_data] = useState(false);
 
   // + TABLE SCROLL
   const cont_1_ref = useRef(null);
@@ -40,7 +41,6 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
   const [mcp_raw_data, set_mcp_raw_data] = useState([]);
   const [mcp_list, set_mcp_list] = useState([]);
   const [selected_list_id, set_selected_list_id] = useState("");
-  const [refresh_mcp_raw_data, set_refresh_mcp_raw_data] = useState(false);
   const [refresh_mcp_list, set_refresh_mcp_list] = useState(false);
   const [total_count, set_total_count] = useState(0);
   const [is_loading, set_is_loading] = useState(false);
@@ -233,8 +233,47 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
     );
   };
 
+  const [delete_loading, set_delete_loading] = useState(false);
+
+  const delete_all = async () => {
+    try {
+      set_delete_loading(true);
+      const snapshot = await get(
+        ref(db, `/DB2_BENBY_MERCH_APP/TBL_MCP_1/DATA`)
+      );
+      const data = snapshot.val();
+
+      if (data) {
+        for (const parentPath of Object.keys(data)) {
+          const childPaths = data[parentPath];
+          if (childPaths) {
+            for (const childPath of Object.keys(childPaths)) {
+              const info = childPaths[childPath];
+              if (info) {
+                await remove(
+                  ref(
+                    db,
+                    `/DB2_BENBY_MERCH_APP/TBL_MCP_1/DATA/${parentPath}/${childPath}`
+                  )
+                );
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting data:", error);
+    } finally {
+      set_delete_loading(false);
+      alert("Deletion Success!");
+      set_show_delete_filter_modal(false);
+      set_refresh_mcp_raw_data((prev) => !prev);
+    }
+  };
+
   const delete_by_filter = async (filter_value, filter_condition) => {
     try {
+      set_delete_loading(true);
       const snapshot = await get(
         ref(db, `/DB2_BENBY_MERCH_APP/TBL_MCP_1/DATA`)
       );
@@ -261,6 +300,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
     } catch (error) {
       console.error("Error deleting data:", error);
     } finally {
+      set_delete_loading(false);
       alert("Deletion Success!");
       set_show_delete_filter_modal(false);
       set_refresh_mcp_raw_data((prev) => !prev);
@@ -592,6 +632,8 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
       {show_delete_filter_modal ? (
         <M1_DELETE_FILTER
           set_show_delete_filter_modal={set_show_delete_filter_modal}
+          delete_loading={delete_loading}
+          delete_all={delete_all}
           delete_by_date_uploaded={delete_by_date_uploaded}
           delete_by_tds_code={delete_by_tds_code}
           delete_by_period={delete_by_period}

@@ -7,10 +7,8 @@ const M1_DELETE_FILTER = ({
   set_show_delete_filter_modal,
   delete_loading,
   delete_all,
-  delete_by_date_uploaded,
+  delete_by_date_updated,
   delete_by_tds_code,
-  delete_by_period,
-  delete_by_sold_code,
 }) => {
   const [selected_filter, set_selected_filter] = useState("Delete All");
   const [filter_value, set_filter_value] = useState("");
@@ -18,14 +16,10 @@ const M1_DELETE_FILTER = ({
   const handle_filter_delete = (selected_filter, filter_value) => {
     if (selected_filter === "Delete All") {
       delete_all();
-    } else if (selected_filter === "Date Uploaded") {
-      delete_by_date_uploaded(filter_value);
+    } else if (selected_filter === "Date Updated") {
+      delete_by_date_updated(filter_value);
     } else if (selected_filter === "TDS Code") {
       delete_by_tds_code(filter_value);
-    } else if (selected_filter === "Period") {
-      delete_by_period(filter_value);
-    } else if (selected_filter === "Sold Code") {
-      delete_by_sold_code(filter_value);
     }
   };
   // RETURN ORIGIN
@@ -108,10 +102,8 @@ const M1_DELETE_FILTER = ({
                   onChange={(e) => set_selected_filter(e.target.value)}
                 >
                   <option>Delete All</option>
-                  <option>Date Uploaded</option>
+                  <option>Date Updated</option>
                   <option>TDS Code</option>
-                  <option>Period</option>
-                  <option>Sold Code</option>
                 </select>
                 <div
                   className="h-100 content-center"

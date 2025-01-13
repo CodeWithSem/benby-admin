@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { Oval } from "react-loader-spinner";
 import { db } from "../../../../../../assets/scripts/firebase";
-import { set, ref } from "firebase/database";
+import { ref, set, get, remove } from "firebase/database";
 import { FaAnglesRight, FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import { MdSearch } from "react-icons/md";
 import {
@@ -14,6 +14,7 @@ import {
 } from "react-icons/md";
 
 const P3_6_STORE_MASTER_INDEX = ({ set_page_display }) => {
+  // + TABLE SCROLL
   const cont_1_ref = useRef(null);
   const cont_2_ref = useRef(null);
 
@@ -32,7 +33,7 @@ const P3_6_STORE_MASTER_INDEX = ({ set_page_display }) => {
       handle_scroll(cont_2_ref.current, cont_1_ref.current);
     }
   };
-
+  // - TABLE SCROLL
   // + GET METHOD MERCH DEPLOYMENT
   const [abort_controller_get_MCP, set_abort_controller_get_MCP] =
     useState(null);

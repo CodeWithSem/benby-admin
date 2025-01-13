@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Oval } from "react-loader-spinner";
 import { db } from "../../../../../../assets/scripts/firebase";
-import { get, ref } from "firebase/database";
+import { ref, get, set } from "firebase/database";
 import { FaAnglesRight, FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import { MdSearch } from "react-icons/md";
 import {
@@ -10,8 +10,14 @@ import {
   MdKeyboardDoubleArrowRight,
   MdKeyboardArrowRight,
 } from "react-icons/md";
+import M1_DELETE_FILTER from "./P2_9_MODALS/M1_DELETE_FILTER";
 
 const P2_9_TDS_DATABASE_INDEX = ({ set_page_display }) => {
+  const [show_delete_filter_modal, set_show_delete_filter_modal] =
+    useState(false);
+  const [refresh_user_raw_data, set_refresh_user_raw_data] = useState(false);
+
+  // + TABLE SCROLL
   const cont_1_ref = useRef(null);
   const cont_2_ref = useRef(null);
 
@@ -30,7 +36,7 @@ const P2_9_TDS_DATABASE_INDEX = ({ set_page_display }) => {
       handle_scroll(cont_2_ref.current, cont_1_ref.current);
     }
   };
-
+  // - TABLE SCROLL
   // + PAGINATION PROCESS ========================================
   const [tds_raw_data, set_tds_raw_data] = useState([]);
   const [tds_list, set_tds_list] = useState([]);
@@ -52,8 +58,8 @@ const P2_9_TDS_DATABASE_INDEX = ({ set_page_display }) => {
       set_is_loading(true);
       const response = await get(ref(db, `/DB1_BENBY_MERCH_APP/TBL_USER/DATA`));
       const data = response.val();
-      const data_array_tds = Object.values(data);
-      set_tds_raw_data(data_array_tds);
+      const data_array_tds = Object.values(data || []);
+      set_tds_raw_data(data_array_tds || []);
     } catch (error) {
       console.log(error);
     } finally {
@@ -63,7 +69,7 @@ const P2_9_TDS_DATABASE_INDEX = ({ set_page_display }) => {
 
   useEffect(() => {
     get_tds_raw_data();
-  }, []);
+  }, [refresh_user_raw_data]);
 
   useEffect(() => {
     filter_data(tds_raw_data);
@@ -212,6 +218,53 @@ const P2_9_TDS_DATABASE_INDEX = ({ set_page_display }) => {
     );
   };
 
+  // + DELETE FILTER
+  const [delete_loading, set_delete_loading] = useState(false);
+  const delete_all = async () => {
+    const path = `/DB2_BENBY_MERCH_APP/TBL_USER/DATA`;
+    try {
+      set_delete_loading(true);
+      await set(ref(db, path), null);
+      delete_all_account();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const delete_all_account = async () => {
+    const path = `/DB2_BENBY_MERCH_APP/TBL_USER/ACCOUNT`;
+    try {
+      await set(ref(db, path), null);
+      delete_all_tds_chain_tag();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const delete_all_tds_chain_tag = async () => {
+    const path = `/DB2_BENBY_MERCH_APP/TBL_TDS_TAGGING/CHAIN_TAGGING`;
+    try {
+      await set(ref(db, path), null);
+      delete_all_tds_data_tag();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const delete_all_tds_data_tag = async () => {
+    const path = `/DB2_BENBY_MERCH_APP/TBL_TDS_TAGGING/DATA`;
+    try {
+      await set(ref(db, path), null);
+      alert("Deletion Success!");
+      set_refresh_user_raw_data((prev) => !prev);
+      set_show_delete_filter_modal(false);
+      set_delete_loading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // - DELETE FILTER
+
   // RETURN ORIGIN
   return (
     <React.Fragment>
@@ -240,6 +293,13 @@ const P2_9_TDS_DATABASE_INDEX = ({ set_page_display }) => {
             >
               Export as Excel
             </button> */}
+            <button
+              className="h-100 btn-general btn-red btn-sm"
+              style={{ padding: "0 2vh" }}
+              onClick={() => set_show_delete_filter_modal(true)}
+            >
+              Delete Filter
+            </button>
             <button
               className="h-100 btn-general btn-gray btn-sm"
               style={{ padding: "0 2vh" }}
@@ -506,6 +566,13 @@ const P2_9_TDS_DATABASE_INDEX = ({ set_page_display }) => {
         </div>
         {/* - PAGINATION */}
       </div>
+      {show_delete_filter_modal ? (
+        <M1_DELETE_FILTER
+          set_show_delete_filter_modal={set_show_delete_filter_modal}
+          delete_loading={delete_loading}
+          delete_all={delete_all}
+        />
+      ) : null}
     </React.Fragment>
   );
 };
