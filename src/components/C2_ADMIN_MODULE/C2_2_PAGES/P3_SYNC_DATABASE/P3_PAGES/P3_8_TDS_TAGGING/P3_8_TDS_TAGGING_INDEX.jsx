@@ -216,7 +216,7 @@ const P3_8_TDS_TAGGING_INDEX = ({ set_page_display }) => {
           }
           const data_ref = ref(
             db,
-            `/DB2_BENBY_MERCH_APP/TBL_TDS_TAGGING/CHAIN_TAGGING/${item.tDSCode}/${item.chainID}`
+            `/DB1_BENBY_MERCH_APP/TBL_TDS_TAGGING/CHAIN_TAGGING/${item.tDSCode}/${item.chainID}`
           );
 
           await set(data_ref, {
@@ -291,7 +291,7 @@ const P3_8_TDS_TAGGING_INDEX = ({ set_page_display }) => {
         dataToPush.map((item) => {
           const dataRef = ref(
             db,
-            `DB2_BENBY_MERCH_APP/TBL_TDS_TAGGING/DATA/${item.a1_TDSCode}/${item.a5_ChainID}/${item.a2_Storecode}`
+            `DB1_BENBY_MERCH_APP/TBL_TDS_TAGGING/DATA/${item.a1_TDSCode}/${item.a5_ChainID}/${item.a2_Storecode}`
           );
           return set(dataRef, item);
         })

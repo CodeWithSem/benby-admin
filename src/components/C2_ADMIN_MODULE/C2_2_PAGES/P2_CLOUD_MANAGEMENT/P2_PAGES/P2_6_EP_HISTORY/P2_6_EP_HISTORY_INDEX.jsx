@@ -59,7 +59,7 @@ const P2_6_EP_HISTORY_INDEX = ({ set_page_display }) => {
     try {
       set_is_loading(true);
       const response = await get(
-        ref(db, `/DB2_BENBY_MERCH_APP/TBL_EP_HISTORY/DATA`)
+        ref(db, `/DB1_BENBY_MERCH_APP/TBL_EP_HISTORY/DATA`)
       );
       const data = response.val();
       const data_array_ep_history = Object.values(data || []);
@@ -222,7 +222,7 @@ const P2_6_EP_HISTORY_INDEX = ({ set_page_display }) => {
   const [delete_loading, set_delete_loading] = useState(false);
 
   const delete_all = async () => {
-    const path = `/DB2_BENBY_MERCH_APP/TBL_EP_HISTORY/DATA`;
+    const path = `/DB1_BENBY_MERCH_APP/TBL_EP_HISTORY/DATA`;
     try {
       await set(ref(db, path), null);
       alert("Deletion Success!");
@@ -237,7 +237,7 @@ const P2_6_EP_HISTORY_INDEX = ({ set_page_display }) => {
     try {
       set_delete_loading(true);
       const snapshot = await get(
-        ref(db, `/DB2_BENBY_MERCH_APP/TBL_EP_HISTORY/DATA`)
+        ref(db, `/DB1_BENBY_MERCH_APP/TBL_EP_HISTORY/DATA`)
       );
       const data = snapshot.val();
       if (data) {
@@ -245,7 +245,7 @@ const P2_6_EP_HISTORY_INDEX = ({ set_page_display }) => {
           const info = data[child_path];
           if (info && filter_condition(info, filter_value)) {
             await remove(
-              ref(db, `/DB2_BENBY_MERCH_APP/TBL_EP_HISTORY/DATA/${child_path}`)
+              ref(db, `/DB1_BENBY_MERCH_APP/TBL_EP_HISTORY/DATA/${child_path}`)
             );
           }
         }

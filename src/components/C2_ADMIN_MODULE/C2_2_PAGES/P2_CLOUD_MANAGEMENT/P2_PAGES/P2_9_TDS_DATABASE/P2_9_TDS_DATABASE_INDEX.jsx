@@ -221,7 +221,7 @@ const P2_9_TDS_DATABASE_INDEX = ({ set_page_display }) => {
   // + DELETE FILTER
   const [delete_loading, set_delete_loading] = useState(false);
   const delete_all = async () => {
-    const path = `/DB2_BENBY_MERCH_APP/TBL_USER/DATA`;
+    const path = `/DB1_BENBY_MERCH_APP/TBL_USER/DATA`;
     try {
       set_delete_loading(true);
       await set(ref(db, path), null);
@@ -232,7 +232,7 @@ const P2_9_TDS_DATABASE_INDEX = ({ set_page_display }) => {
   };
 
   const delete_all_account = async () => {
-    const path = `/DB2_BENBY_MERCH_APP/TBL_USER/ACCOUNT`;
+    const path = `/DB1_BENBY_MERCH_APP/TBL_USER/ACCOUNT`;
     try {
       await set(ref(db, path), null);
       delete_all_tds_chain_tag();
@@ -242,7 +242,7 @@ const P2_9_TDS_DATABASE_INDEX = ({ set_page_display }) => {
   };
 
   const delete_all_tds_chain_tag = async () => {
-    const path = `/DB2_BENBY_MERCH_APP/TBL_TDS_TAGGING/CHAIN_TAGGING`;
+    const path = `/DB1_BENBY_MERCH_APP/TBL_TDS_TAGGING/CHAIN_TAGGING`;
     try {
       await set(ref(db, path), null);
       delete_all_tds_data_tag();
@@ -252,7 +252,7 @@ const P2_9_TDS_DATABASE_INDEX = ({ set_page_display }) => {
   };
 
   const delete_all_tds_data_tag = async () => {
-    const path = `/DB2_BENBY_MERCH_APP/TBL_TDS_TAGGING/DATA`;
+    const path = `/DB1_BENBY_MERCH_APP/TBL_TDS_TAGGING/DATA`;
     try {
       await set(ref(db, path), null);
       alert("Deletion Success!");

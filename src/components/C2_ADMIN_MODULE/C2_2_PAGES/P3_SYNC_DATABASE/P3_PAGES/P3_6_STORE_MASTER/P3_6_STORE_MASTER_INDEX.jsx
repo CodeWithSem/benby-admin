@@ -222,7 +222,7 @@ const P3_6_STORE_MASTER_INDEX = ({ set_page_display }) => {
 
           const data_ref = ref(
             db,
-            `/DB2_BENBY_MERCH_APP/TBL_STORE_MASTER/DATA/${item.cstCode}`
+            `/DB1_BENBY_MERCH_APP/TBL_STORE_MASTER/DATA/${item.cstCode}`
           );
 
           // Set the data (you may need to adapt this to support cancellation)

@@ -58,7 +58,6 @@ const P2_2_OSA_INDEX = ({ set_page_display }) => {
       const osa_date_value = format_date(osa_date, "-");
       const response = await get(
         ref(db, `/DB1_BENBY_MERCH_APP/TBL_OSA_1/DATA`)
-        // ref(db, `/DB2_BENBY_MERCH_APP/TBL_OSA/DATA/${osa_date_value}`)
       );
       const data = response.val();
       let osa_data = [];

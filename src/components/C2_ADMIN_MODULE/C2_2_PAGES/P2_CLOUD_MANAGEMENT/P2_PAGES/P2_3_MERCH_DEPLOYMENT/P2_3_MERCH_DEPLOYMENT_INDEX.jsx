@@ -57,7 +57,7 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
     try {
       set_is_loading(true);
       const response = await get(
-        ref(db, `/DB2_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA`)
+        ref(db, `/DB1_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA`)
       );
       const data = response.val();
       let md_data = [];
@@ -232,7 +232,7 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
   const [delete_loading, set_delete_loading] = useState(false);
 
   const delete_all = async () => {
-    const path = `/DB2_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA`;
+    const path = `/DB1_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA`;
     try {
       await set(ref(db, path), null);
       alert("Deletion Success!");
@@ -247,7 +247,7 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
     try {
       set_delete_loading(true);
       const snapshot = await get(
-        ref(db, `/DB2_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA`)
+        ref(db, `/DB1_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA`)
       );
       const data = snapshot.val();
       if (data) {
@@ -260,7 +260,7 @@ const P2_3_MERCH_DEPLOYMENT_INDEX = ({ set_page_display }) => {
                 await remove(
                   ref(
                     db,
-                    `/DB2_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA/${parent_path}/${child_path}`
+                    `/DB1_BENBY_MERCH_APP/TBL_MERCH_DEPLOYMENT_1/DATA/${parent_path}/${child_path}`
                   )
                 );
               }

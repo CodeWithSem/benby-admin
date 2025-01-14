@@ -219,7 +219,7 @@ const P3_5_MCL_INDEX = ({ set_page_display }) => {
 
           const data_ref = ref(
             db,
-            `/DB2_BENBY_MERCH_APP/TBL_MCL/DATA/${item.matcode}`
+            `/DB1_BENBY_MERCH_APP/TBL_MCL/DATA/${item.matcode}`
           );
 
           await set(data_ref, {

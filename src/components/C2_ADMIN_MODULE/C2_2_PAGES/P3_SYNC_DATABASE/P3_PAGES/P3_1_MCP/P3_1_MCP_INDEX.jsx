@@ -225,7 +225,7 @@ const P3_1_MCP_INDEX = ({ set_page_display }) => {
 
           const data_ref = ref(
             db,
-            `/DB2_BENBY_MERCH_APP/TBL_MCP_1/DATA/${item.tDSCode}/${item.id}`
+            `/DB1_BENBY_MERCH_APP/TBL_MCP_1/DATA/${item.tDSCode}/${item.id}`
           );
 
           // Set the data (you may need to adapt this to support cancellation)

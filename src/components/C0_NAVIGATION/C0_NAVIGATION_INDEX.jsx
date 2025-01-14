@@ -41,7 +41,7 @@ const C0_NAVIGATION_INDEX = () => {
   // RETURN ORIGIN
   return (
     <React.Fragment>
-      {page_display === "admin" ? <RENDER_ADMIN_PAGE /> : null}
+      <RENDER_ADMIN_PAGE />
     </React.Fragment>
   );
 };

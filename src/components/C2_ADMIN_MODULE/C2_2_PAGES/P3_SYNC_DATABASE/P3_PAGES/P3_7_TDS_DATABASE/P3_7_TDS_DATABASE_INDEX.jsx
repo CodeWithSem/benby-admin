@@ -220,7 +220,7 @@ const P3_7_TDS_DATABASE_INDEX = ({ set_page_display }) => {
 
           const data_ref = ref(
             db,
-            `/DB2_BENBY_MERCH_APP/TBL_USER/DATA/${item.id}`
+            `/DB1_BENBY_MERCH_APP/TBL_USER/DATA/${item.id}`
           );
 
           // Set the data (you may need to adapt this to support cancellation)
@@ -250,7 +250,7 @@ const P3_7_TDS_DATABASE_INDEX = ({ set_page_display }) => {
 
           const account_ref = ref(
             db,
-            `/DB2_BENBY_MERCH_APP/TBL_USER/ACCOUNT/${item.pC}`
+            `/DB1_BENBY_MERCH_APP/TBL_USER/ACCOUNT/${item.pC}`
           );
 
           // Set the data for ACCOUNT reference

@@ -57,7 +57,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
     try {
       set_is_loading(true);
       const response = await get(
-        ref(db, `/DB2_BENBY_MERCH_APP/TBL_MCP_1/DATA`)
+        ref(db, `/DB1_BENBY_MERCH_APP/TBL_MCP_1/DATA`)
       );
       const data = response.val();
       let mcp_data = [];
@@ -239,7 +239,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
     try {
       set_delete_loading(true);
       const snapshot = await get(
-        ref(db, `/DB2_BENBY_MERCH_APP/TBL_MCP_1/DATA`)
+        ref(db, `/DB1_BENBY_MERCH_APP/TBL_MCP_1/DATA`)
       );
       const data = snapshot.val();
 
@@ -253,7 +253,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
                 await remove(
                   ref(
                     db,
-                    `/DB2_BENBY_MERCH_APP/TBL_MCP_1/DATA/${parentPath}/${childPath}`
+                    `/DB1_BENBY_MERCH_APP/TBL_MCP_1/DATA/${parentPath}/${childPath}`
                   )
                 );
               }
@@ -275,7 +275,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
     try {
       set_delete_loading(true);
       const snapshot = await get(
-        ref(db, `/DB2_BENBY_MERCH_APP/TBL_MCP_1/DATA`)
+        ref(db, `/DB1_BENBY_MERCH_APP/TBL_MCP_1/DATA`)
       );
       const data = snapshot.val();
 
@@ -289,7 +289,7 @@ const P2_1_MCP_INDEX = ({ set_page_display }) => {
                 await remove(
                   ref(
                     db,
-                    `/DB2_BENBY_MERCH_APP/TBL_MCP_1/DATA/${parentPath}/${childPath}`
+                    `/DB1_BENBY_MERCH_APP/TBL_MCP_1/DATA/${parentPath}/${childPath}`
                   )
                 );
               }

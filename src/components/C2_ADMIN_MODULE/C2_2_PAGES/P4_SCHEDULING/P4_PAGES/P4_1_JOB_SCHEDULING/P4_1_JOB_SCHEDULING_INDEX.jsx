@@ -107,7 +107,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
       if (!process_start) {
         validate_time_range(schedule_start_time, schedule_end_time);
       }
-    }, 5000);
+    }, 1800000);
     return () => clearInterval(intervalId);
   }, [schedule_start_time, schedule_end_time, process_start]);
 
