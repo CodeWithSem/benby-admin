@@ -136,7 +136,7 @@ const P2_2_OSA_INDEX = ({ set_page_display }) => {
   }, [osa_raw_data, current_page, search_query, refresh_osa_list, sort_config]);
 
   const apply_search_filter = (data, query) => {
-    const fields_to_search = ["a2_Storecode"];
+    const fields_to_search = ["a2_Storecode", "a5_Dateupdated"];
     return data.filter((item) => {
       const search_by_text = fields_to_search.some((field) => {
         const value = item[field];

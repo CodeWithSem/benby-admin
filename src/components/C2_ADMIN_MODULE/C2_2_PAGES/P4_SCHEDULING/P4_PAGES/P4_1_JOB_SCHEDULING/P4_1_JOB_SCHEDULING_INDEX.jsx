@@ -158,6 +158,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
   const [osa_pushed_length, set_osa_pushed_length] = useState(0);
 
   const fetch_data_osa = async () => {
+    set_start_job(true);
     set_job_status(0);
     set_osa_length(0);
     set_osa_pushed_length(0);
@@ -167,34 +168,41 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
     console.log("fetching OSA");
     try {
       // set_is_loading(true);
-      const response = await get(ref(db, `/DB1_BENBY_MERCH_APP/TBL_OSA/DATA`));
+      const response = await get(
+        ref(db, `/DB1_BENBY_MERCH_APP/TBL_OSA_1/DATA`)
+      );
       const data = response.val();
       if (data) {
         Object.keys(data).forEach((parentPath) => {
           const childPaths = data[parentPath];
           if (childPaths) {
             Object.keys(childPaths).forEach((childPath) => {
-              const info = childPaths[childPath];
-              if (info) {
-                if (!info.a5_Dateupdated || !info.a6_UpdatedBy) {
-                  return;
-                }
-                const product = {
-                  a0_ID: `${parentPath}_${childPath}`,
-                  a1_Matcode: info.a1_Matcode,
-                  a2_Storecode: info.a2_Storecode,
-                  a3_ActionID: info.a3_ActionID,
-                  a4_SubActionID: info.a4_SubActionID,
-                  a5_Dateupdated: info.a5_Dateupdated,
-                  a6_UpdatedBy: info.a6_UpdatedBy,
-                  a7_Pcs: info.a7_Pcs,
-                  a8_Cases: info.a8_Cases,
-                  a9_InnerBox: info.a9_InnerBox,
-                  b1_ExpiryDate: info.b1_ExpiryDate,
-                  b2_Remarks: info.b2_Remarks,
-                  b3_ExpiryDates: info.b3_ExpiryDates,
-                };
-                products.push(product);
+              const osa_data = childPaths[childPath];
+              if (osa_data) {
+                Object.keys(osa_data).forEach((data) => {
+                  const info = osa_data[data];
+                  if (info) {
+                    if (!info.a5_Dateupdated || !info.a6_UpdatedBy) {
+                      return;
+                    }
+                    const product = {
+                      a0_ID: `${parentPath}_${childPath}`,
+                      a1_Matcode: info.a1_Matcode,
+                      a2_Storecode: info.a2_Storecode,
+                      a3_ActionID: info.a3_ActionID,
+                      a4_SubActionID: info.a4_SubActionID,
+                      a5_Dateupdated: info.a5_Dateupdated,
+                      a6_UpdatedBy: info.a6_UpdatedBy,
+                      a7_Pcs: info.a7_Pcs,
+                      a8_Cases: info.a8_Cases,
+                      a9_InnerBox: info.a9_InnerBox,
+                      b1_ExpiryDate: info.b1_ExpiryDate,
+                      b2_Remarks: info.b2_Remarks,
+                      b3_ExpiryDates: info.b3_ExpiryDates,
+                    };
+                    products.push(product);
+                  }
+                });
               }
             });
           }
@@ -334,12 +342,13 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
                 Storecode: item.a2_Storecode || "",
                 ActionID: item.a3_ActionID.toString() || "",
                 SubActionID: item.a4_SubActionID.toString() || "",
-                DateUpdated: item.a5_Dateupdated || format_date(date_now, "/"),
+                DateUpdated:
+                  item.a5_Dateupdated.toString() || format_date(date_now, "/"),
                 UpdatedBy: item.a6_UpdatedBy.toString() || "NULL",
-                PCS: item.a7_Pcs.toString(),
-                CS: item.a8_Cases.toString(),
-                InnerBox: item.a9_InnerBox.toString(),
-                Remarks: item.b2_Remarks.toString(),
+                PCS: item.a7_Pcs.toString() || "",
+                CS: item.a8_Cases.toString() || "",
+                InnerBox: item.a9_InnerBox.toString() || "",
+                Remarks: item.b2_Remarks.toString() || "",
               },
               { signal: abort_controller.signal }
             );
