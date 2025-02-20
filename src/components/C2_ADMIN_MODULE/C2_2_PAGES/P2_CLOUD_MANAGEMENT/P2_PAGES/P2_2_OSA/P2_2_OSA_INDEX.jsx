@@ -11,6 +11,7 @@ import {
   MdKeyboardArrowRight,
 } from "react-icons/md";
 import { format_date } from "../../../../../../assets/scripts/functions/format_function";
+import * as XLSX from "xlsx";
 
 const P2_2_OSA_INDEX = ({ set_page_display }) => {
   const date_now = new Date();
@@ -86,6 +87,7 @@ const P2_2_OSA_INDEX = ({ set_page_display }) => {
                       b2_Remarks: matcode_data.b2_Remarks,
                       b3_ExpiryDates: matcode_data.b3_ExpiryDates,
                     };
+                    console.log("PUSH: " + matcode_data.a1_Matcode);
                     osa_data.push(data);
                   }
                 });
@@ -243,6 +245,51 @@ const P2_2_OSA_INDEX = ({ set_page_display }) => {
     );
   };
 
+  // + EXPORT AS EXCEL
+  const export_as_excel = async () => {
+    const date_now = new Date();
+    // set_export_loading(true);
+
+    // Format the current date for comparison
+    const formattedCurrentDate = format_date(date_now, "/");
+
+    try {
+      // Filter and then map the data
+      const formattedData = osa_raw_data
+        .filter((item) => item.a5_Dateupdated && item.a6_UpdatedBy)
+        // .filter((item) => item.a5_Dateupdated === formattedCurrentDate)
+        .map((item) => ({
+          MCLRowID: item.a1_Matcode,
+          Storecode: item.a2_Storecode,
+          ActionID: item.a3_ActionID,
+          SubActionID: item.a4_SubActionID,
+          DateUpdated: item.a5_Dateupdated,
+          UpdatedBy: item.a6_UpdatedBy,
+          PCS: item.a7_Pcs,
+          CS: item.a8_Cases,
+          InnerBox: item.a9_InnerBox,
+          ExpiryDate: item.b1_ExpiryDate,
+          Remarks: item.b2_Remarks,
+          ExpiryDates: item.b3_ExpiryDates,
+        }));
+
+      const worksheet = XLSX.utils.json_to_sheet(formattedData);
+      // const worksheet = XLSX.utils.json_to_sheet(formattedData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "OSA");
+
+      XLSX.writeFile(
+        workbook,
+        `OSA_HISTORY_${format_date(date_now, "-")}.xlsx`
+      );
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    } finally {
+      // set_export_loading(false);
+    }
+  };
+  // - EXPORT AS EXCEL
+
   // RETURN ORIGIN
   return (
     <React.Fragment>
@@ -264,13 +311,13 @@ const P2_2_OSA_INDEX = ({ set_page_display }) => {
             className="h-100 content-center"
             style={{ position: "absolute", right: "0", gap: "1vh" }}
           >
-            {/* <button
+            <button
               className="h-100 btn-general btn-green btn-sm"
               style={{ padding: "0 2vh" }}
-              onClick={() => set_page_display("")}
+              onClick={export_as_excel}
             >
               Export as Excel
-            </button> */}
+            </button>
             <button
               className="h-100 btn-general btn-gray btn-sm"
               style={{ padding: "0 2vh" }}
