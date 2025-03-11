@@ -204,3 +204,7 @@
   border-radius: 0.4vh;
   color: var(--text-color);
 }
+
+.input-general:disabled {
+  background: var(--border-color-light);
+}

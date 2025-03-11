@@ -12,6 +12,7 @@ import P2_9_TDS_DATABASE_INDEX from "./P2_PAGES/P2_9_TDS_DATABASE/P2_9_TDS_DATAB
 import P2_10_TDS_TAGGING_DATA_INDEX from "./P2_PAGES/P2_10_TDS_TAGGING_DATA/P2_10_TDS_TAGGING_DATA_INDEX";
 import P2_11_TDS_TAGGING_CHAIN_INDEX from "./P2_PAGES/P2_11_TDS_TAGGING_CHAIN/P2_11_TDS_TAGGING_CHAIN_INDEX";
 import P2_12_OSA_EXPORT_INDEX from "./P2_PAGES/P2_12_OSA_EXPORT/P2_12_OSA_EXPORT_INDEX";
+import P2_13_SKU_BRAND_INDEX from "./P2_PAGES/P2_13_SKU_BRAND/P2_13_SKU_BRAND_INDEX";
 
 const P2_CLOUD_MANAGEMENT_INDEX = () => {
   const [page_display, set_page_display] = useState("");
@@ -358,7 +359,38 @@ const P2_CLOUD_MANAGEMENT_INDEX = () => {
                 </div>
               </div>
               {/* - TDS TAGGING (CHAIN) */}
+              {/* + SKU BRAND */}
+              <div
+                className="admin-card content-center"
+                onClick={() => set_page_display("SKU Brand & Category")}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "1vh",
+                    left: "1vh",
+                    height: "4vh",
+                    width: "4vh",
+                    background: "var(--primary-color)",
+                    borderRadius: "0.4vh",
+                  }}
+                  className="content-center"
+                >
+                  <FiDatabase style={{ fontSize: "2vh", color: "#FFF" }} />
+                </div>
+                <div
+                  style={{
+                    fontSize: "1.6vh",
+                    letterSpacing: "0.1vh",
+                    color: "var(--text-color)",
+                  }}
+                >
+                  SKU Brand & Category
+                </div>
+              </div>
+              {/* - SKU BRAND) */}
               {/* + OSA EXPORT */}
+              {/*
               <div
                 className="admin-card content-center"
                 onClick={() => set_page_display("OSA Export")}
@@ -387,6 +419,7 @@ const P2_CLOUD_MANAGEMENT_INDEX = () => {
                   OSA Export
                 </div>
               </div>
+              */}
               {/* - OSA EXPORT */}
             </div>
           </React.Fragment>
@@ -426,6 +459,9 @@ const P2_CLOUD_MANAGEMENT_INDEX = () => {
         ) : null}
         {page_display === "OSA Export" ? (
           <P2_12_OSA_EXPORT_INDEX set_page_display={set_page_display} />
+        ) : null}
+        {page_display === "SKU Brand & Category" ? (
+          <P2_13_SKU_BRAND_INDEX set_page_display={set_page_display} />
         ) : null}
       </div>
     </React.Fragment>
