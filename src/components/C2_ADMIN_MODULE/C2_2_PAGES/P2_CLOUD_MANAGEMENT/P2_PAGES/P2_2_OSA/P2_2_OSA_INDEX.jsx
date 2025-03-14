@@ -58,7 +58,10 @@ const P2_2_OSA_INDEX = ({ set_page_display }) => {
       set_is_loading(true);
       const osa_date_value = format_date(osa_date, "-");
       const response = await get(
-        ref(db, `/DB1_BENBY_MERCH_APP/TBL_OSA_1/DATA`)
+        ref(
+          db,
+          `/DB1_BENBY_MERCH_APP/TBL_OSA_2/DATA/${format_date(osa_date, "-")}`
+        )
       );
       const data = response.val();
       let osa_data = [];
@@ -354,7 +357,7 @@ const P2_2_OSA_INDEX = ({ set_page_display }) => {
               />
             </div>
           </div>
-          {/* <div className="h-100">
+          <div className="h-100">
             <input
               type="date"
               className="h-100 w-100 border-light"
@@ -369,7 +372,7 @@ const P2_2_OSA_INDEX = ({ set_page_display }) => {
               value={osa_date}
               onChange={(e) => set_osa_date(e.target.value)} // Update state on change
             />
-          </div> */}
+          </div>
         </div>
         {/* - SEARCH BAR */}
         {/* + TABLE SECTION */}

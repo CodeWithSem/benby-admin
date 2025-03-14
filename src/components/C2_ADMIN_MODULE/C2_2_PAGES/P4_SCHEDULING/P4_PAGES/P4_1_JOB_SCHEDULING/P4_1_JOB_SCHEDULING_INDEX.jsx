@@ -24,6 +24,13 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
     return format_raw_date(yesterday, "/");
   };
 
+  const get_yesterday_path = () => {
+    const yesterday = new Date(current_data);
+    yesterday.setDate(current_data.getDate() - 1);
+
+    return format_raw_date(yesterday, "-");
+  };
+
   // + START AND END TIME
   const [schedule_start_time, set_schedule_start_time] = useState(0);
   const [schedule_end_time, set_schedule_end_time] = useState(0);
@@ -169,7 +176,7 @@ const P4_1_JOB_SCHEDULING_INDEX = ({ set_page_display }) => {
     try {
       // set_is_loading(true);
       const response = await get(
-        ref(db, `/DB1_BENBY_MERCH_APP/TBL_OSA_1/DATA`)
+        ref(db, `/DB1_BENBY_MERCH_APP/TBL_OSA_2/DATA/${get_yesterday_path()}`)
       );
       const data = response.val();
       if (data) {

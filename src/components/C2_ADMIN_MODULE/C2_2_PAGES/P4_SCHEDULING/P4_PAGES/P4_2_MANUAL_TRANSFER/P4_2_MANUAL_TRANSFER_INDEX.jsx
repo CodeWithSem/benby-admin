@@ -40,7 +40,13 @@ const P4_2_MANUAL_TRANSFER_INDEX = ({ set_page_display }) => {
     try {
       // set_is_loading(true);
       const response = await get(
-        ref(db, `/DB1_BENBY_MERCH_APP/TBL_OSA_1/DATA`)
+        ref(
+          db,
+          `/DB1_BENBY_MERCH_APP/TBL_OSA_2/DATA/${format_date(
+            selected_date,
+            "-"
+          )}`
+        )
       );
       const data = response.val();
       if (data) {
