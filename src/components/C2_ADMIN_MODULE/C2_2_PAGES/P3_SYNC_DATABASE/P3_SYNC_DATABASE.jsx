@@ -52,7 +52,7 @@ const P3_SYNC_DATABASE = () => {
             </div>
           </div>
           {/* - MCP */}
-          {/* + OSA */}
+          {/* + OSA Not Carried */}
           <div
             className="admin-card content-center"
             onClick={() => set_page_display("OSA")}
@@ -78,10 +78,10 @@ const P3_SYNC_DATABASE = () => {
                 color: "var(--text-color)",
               }}
             >
-              OSA
+              OSA Not Carried
             </div>
           </div>
-          {/* - OSA */}
+          {/* - OSA Not Carried */}
           {/* + MERCH DEPLOYMENT */}
           <div
             className="admin-card content-center"

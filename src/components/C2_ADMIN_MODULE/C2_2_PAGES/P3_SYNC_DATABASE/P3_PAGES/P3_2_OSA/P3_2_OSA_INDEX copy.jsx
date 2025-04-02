@@ -54,7 +54,7 @@ const P3_2_OSA_INDEX = ({ set_page_display }) => {
 
     try {
       const response = await axios.get(
-        "https://benbyextportal.com/home/api/get/GetOSATAGGINGNOTCARRIED?Matcode=0",
+        "https://benbyextportal.com/home/api/get/GetSKUCarried?Storecode=0",
         {
           signal: controller.signal, // Pass the signal to Axios
         }
@@ -66,7 +66,6 @@ const P3_2_OSA_INDEX = ({ set_page_display }) => {
         a0_ID: uuidv4(),
       }));
 
-      console.log(data_with_ids);
       set_db_osa_list(data_with_ids);
     } catch (error) {
       if (axios.isCancel(error)) {
@@ -134,7 +133,7 @@ const P3_2_OSA_INDEX = ({ set_page_display }) => {
   };
 
   const apply_search_filter = (data, query) => {
-    const fields_to_search = ["tDSCODE", "mATCODE"];
+    const fields_to_search = ["storecode", "matcode", "dateupdated"];
     return data.filter((item) => {
       const search_by_text = fields_to_search.some((field) => {
         const value = item[field];
@@ -201,7 +200,6 @@ const P3_2_OSA_INDEX = ({ set_page_display }) => {
     delay = 500,
     abort_controller
   ) => {
-    const date_now = new Date();
     set_is_get_OSA_loading(true);
     set_show_push_OSA_alert(true);
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -215,16 +213,16 @@ const P3_2_OSA_INDEX = ({ set_page_display }) => {
 
           const data_ref = ref(
             db,
-            `/DB1_BENBY_MERCH_APP/TBL_OSA_NOT_CARRIED/DATA/${item.tDSCODE}/${item.mATCODE}`
+            `/DB1_BENBY_MERCH_APP/TBL_OSA/DATA/${item.storecode}/${item.matcode}`
           );
 
           // Set the data (you may need to adapt this to support cancellation)
           await set(data_ref, {
-            a1_Matcode: item.mATCODE.toString(),
-            a2_Storecode: "",
+            a1_Matcode: item.matcode.toString(),
+            a2_Storecode: item.storecode.toString(),
             a3_ActionID: 5,
             a4_SubActionID: 0,
-            a5_Dateupdated: format_raw_date(date_now, "/") || "",
+            a5_Dateupdated: format_raw_date(item.dateupdated, "/") || "",
             a6_UpdatedBy: "",
             a7_Pcs: 0,
             a8_Cases: 0,
@@ -482,7 +480,7 @@ const P3_2_OSA_INDEX = ({ set_page_display }) => {
           <div className="content-center" style={{ width: "4vh" }}>
             <FaAnglesRight style={{ fontSize: "1.2vh" }} />
           </div>
-          <div>OSA Not Carried</div>
+          <div>OSA</div>
           <div
             className="h-100 content-center"
             style={{ position: "absolute", right: "0", gap: "1vh" }}
@@ -574,9 +572,9 @@ const P3_2_OSA_INDEX = ({ set_page_display }) => {
                 }}
               >
                 {render_thead("#", "", "10")}
-                {render_thead("TDS CODE", "tDSCODE", "20")}
-                {render_thead("MAT CODE", "mATCODE", "20")}
-                {render_thead("DATE UPDATED", "", "20")}
+                {render_thead("STORE CODE", "storecode", "20")}
+                {render_thead("MAT CODE", "storecode", "20")}
+                {render_thead("DATE UPDATED", "dateupdated", "20")}
               </tr>
             </table>
           </div>
@@ -641,9 +639,9 @@ const P3_2_OSA_INDEX = ({ set_page_display }) => {
                               onClick={() => set_selected_list_id(data.a0_ID)}
                             >
                               {render_row(data.index, 10)}
-                              {render_row(data.tDSCODE, 20)}
-                              {render_row(data.mATCODE, 20)}
-                              {render_row("N/A", 20)}
+                              {render_row(data.storecode, 20)}
+                              {render_row(data.matcode, 20)}
+                              {render_row(data.dateupdated, 20)}
                             </tr>
                           );
                         })}

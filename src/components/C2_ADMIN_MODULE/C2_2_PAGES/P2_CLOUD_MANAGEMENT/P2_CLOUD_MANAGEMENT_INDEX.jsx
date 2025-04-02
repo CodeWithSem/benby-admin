@@ -391,7 +391,7 @@ const P2_CLOUD_MANAGEMENT_INDEX = () => {
               </div>
               {/* - SKU BRAND) */}
               {/* + OSA EXPORT */}
-              {/* <div
+              <div
                 className="admin-card content-center"
                 onClick={() => set_page_display("OSA Export")}
               >
@@ -418,7 +418,7 @@ const P2_CLOUD_MANAGEMENT_INDEX = () => {
                 >
                   OSA Export
                 </div>
-              </div> */}
+              </div>
 
               {/* - OSA EXPORT */}
               {/* + EPMD EXPORT */}
