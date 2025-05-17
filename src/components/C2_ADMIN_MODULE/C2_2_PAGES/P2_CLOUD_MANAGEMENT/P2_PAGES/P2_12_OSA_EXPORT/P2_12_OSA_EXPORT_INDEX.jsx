@@ -258,9 +258,9 @@ const P2_12_OSA_EXPORT_INDEX = ({ set_page_display }) => {
             gap: "2vh",
           }}
         >
-          <button style={{ height: "10vh" }} onClick={get_osa_raw_data}>
+          {/* <button style={{ height: "10vh" }} onClick={get_osa_raw_data}>
             Get OSA Data
-          </button>
+          </button> */}
           <button
             style={{ height: "10vh" }}
             onClick={get_osa_raw_data_store_code}
