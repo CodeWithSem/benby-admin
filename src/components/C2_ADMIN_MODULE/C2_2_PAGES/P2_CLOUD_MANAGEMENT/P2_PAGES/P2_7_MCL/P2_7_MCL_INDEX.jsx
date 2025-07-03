@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Oval } from "react-loader-spinner";
 import { db } from "../../../../../../assets/scripts/firebase";
-import { get, ref } from "firebase/database";
+import { ref, set, get } from "firebase/database";
+import { Oval } from "react-loader-spinner";
 import { FaAnglesRight, FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import { MdSearch } from "react-icons/md";
 import {
@@ -10,8 +10,11 @@ import {
   MdKeyboardDoubleArrowRight,
   MdKeyboardArrowRight,
 } from "react-icons/md";
+import M1_DELETE_FILTER from "./P2_7_MODALS/M1_DELETE_FILTER";
 
 const P2_7_MCL_INDEX = ({ set_page_display }) => {
+  const [show_delete_filter_modal, set_show_delete_filter_modal] =
+    useState(false);
   const cont_1_ref = useRef(null);
   const cont_2_ref = useRef(null);
 
@@ -210,6 +213,26 @@ const P2_7_MCL_INDEX = ({ set_page_display }) => {
     );
   };
 
+  // + DELETE FILTER
+  const [delete_loading, set_delete_loading] = useState(false);
+
+  const delete_all = async () => {
+    const path = `/DB1_BENBY_MERCH_APP/TBL_MCL/DATA`;
+    try {
+      set_delete_loading(true);
+      await set(ref(db, path), null);
+      alert("Deletion Success!");
+      set_refresh_mcl_list((prev) => !prev);
+      set_show_delete_filter_modal(false);
+    } catch (error) {
+      set_delete_loading(false);
+      console.log(error);
+    } finally {
+      set_delete_loading(false);
+    }
+  };
+  // - DELETE FILTER
+
   // RETURN ORIGIN
   return (
     <React.Fragment>
@@ -238,6 +261,13 @@ const P2_7_MCL_INDEX = ({ set_page_display }) => {
             >
               Export as Excel
             </button> */}
+            <button
+              className="h-100 btn-general btn-red btn-sm"
+              style={{ padding: "0 2vh" }}
+              onClick={() => set_show_delete_filter_modal(true)}
+            >
+              Delete Filter
+            </button>
             <button
               className="h-100 btn-general btn-gray btn-sm"
               style={{ padding: "0 2vh" }}
@@ -484,6 +514,13 @@ const P2_7_MCL_INDEX = ({ set_page_display }) => {
         </div>
         {/* - PAGINATION */}
       </div>
+      {show_delete_filter_modal ? (
+        <M1_DELETE_FILTER
+          set_show_delete_filter_modal={set_show_delete_filter_modal}
+          delete_loading={delete_loading}
+          delete_all={delete_all}
+        />
+      ) : null}
     </React.Fragment>
   );
 };
