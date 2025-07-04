@@ -120,6 +120,17 @@ const C2_1_SIDEBAR_INDEX = ({ active_page_label, set_active_page_label }) => {
       </div>
 
       {/* Footer */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "1vh",
+          left: "1.5vh",
+          color: "var(--text-color-light)",
+          fontSize: "1.4vh",
+        }}
+      >
+        Version 2.0.0
+      </div>
       {/* <div className="sidebar-footer">
         <div className="sidebar-footer-item">
           <div className="sidebar-footer-icon">
